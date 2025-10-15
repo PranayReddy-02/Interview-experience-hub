@@ -1,0 +1,124 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" routerLink="/">
+        <i class="fas fa-briefcase text-primary me-2"></i>
+        Interview Hub
+      </a>
+      <button class="btn btn-outline-secondary" routerLink="/">
+        <i class="fas fa-arrow-left me-2"></i>
+        Back to Home
+      </button>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <!-- Login Card -->
+        <div class="card shadow-lg">
+          <div class="card-header bg-primary text-white text-center">
+            <h4 class="mb-0">
+              <i class="fas fa-sign-in-alt me-2"></i>
+              Login
+            </h4>
+          </div>
+          <div class="card-body p-4">
+            <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
+              <!-- Error Message -->
+              <div *ngIf="errorMessage" class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {{ errorMessage }}
+              </div>
+
+              <!-- Demo Info -->
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Demo Account:</strong>
+                <br>
+                <small>Email: user@example.com</small>
+                <br>
+                <small>Password: password</small>
+                <br>
+                <button type="button" class="btn btn-sm btn-outline-info mt-2" (click)="fillDemoCredentials()">
+                  Fill Demo Credentials
+                </button>
+              </div>
+
+              <!-- Email -->
+              <div class="mb-3">
+                <label for="email" class="form-label">
+                  <i class="fas fa-envelope me-1"></i>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control"
+                  placeholder="Enter your email"
+                  [(ngModel)]="credentials.email"
+                  required
+                  #email="ngModel">
+                <div *ngIf="email.invalid && email.touched" class="text-danger small">
+                  Please enter a valid email address
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="mb-4">
+                <label for="password" class="form-label">
+                  <i class="fas fa-lock me-1"></i>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="form-control"
+                  placeholder="Enter your password"
+                  [(ngModel)]="credentials.password"
+                  required
+                  #password="ngModel">
+                <div *ngIf="password.invalid && password.touched" class="text-danger small">
+                  Please enter your password
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                class="btn btn-primary w-100"
+                [disabled]="isLoading || loginForm.invalid">
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!isLoading" class="fas fa-sign-in-alt me-2"></i>
+                {{ isLoading ? 'Signing in...' : 'Sign In' }}
+              </button>
+            </form>
+
+            <!-- Additional Options -->
+            <div class="text-center mt-4">
+              <small class="text-muted">
+                Don't have an account?
+                <a href="#" class="text-decoration-none">Sign up here</a>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Demo Users -->
+        <div class="card mt-3">
+          <div class="card-body">
+            <h6 class="card-title text-center">Demo Users:</h6>
+            <small class="text-muted">
+              <div><strong>User:</strong> user@example.com / password</div>
+              <div><strong>Admin:</strong> admin@company.com / admin123</div>
+              <div><strong>Test:</strong> test@gmail.com / test123</div>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

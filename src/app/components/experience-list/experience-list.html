@@ -1,0 +1,162 @@
+<div class="experience-list">
+  <div *ngIf="experiences.length === 0" class="text-center py-5">
+    <div class="no-experiences">
+      <i class="fas fa-search fa-3x text-muted mb-3"></i>
+      <h4 class="text-muted">No experiences found</h4>
+      <p class="text-muted">Try adjusting your search filters or be the first to share an experience!</p>
+    </div>
+  </div>
+
+  <div *ngFor="let experience of experiences" class="experience-card card mb-4 clickable-card" (click)="showExperienceDetail(experience)">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="d-flex align-items-start mb-3">
+            <div class="company-info flex-grow-1">
+              <h5 class="company-name mb-1">{{ experience.company }}</h5>
+              <p class="role-name text-primary mb-2">{{ experience.role }}</p>
+              <div class="location-info">
+                <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                <span class="text-muted">{{ experience.location }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="experience-details">
+            <div class="row g-3 mb-3">
+              <div class="col-auto">
+                <span class="detail-label">Difficulty:</span>
+                <span [class]="getDifficultyBadgeClass(experience.difficulty)">
+                  {{ experience.difficulty }}
+                </span>
+              </div>
+              <div class="col-auto">
+                <span class="detail-label">Offer:</span>
+                <span [class]="getOfferBadgeClass(experience.gotOffer)">
+                  {{ experience.gotOffer ? 'Got Offer' : 'No Offer' }}
+                </span>
+              </div>
+              <div class="col-auto">
+                <span class="detail-label">Mode:</span>
+                <span class="badge bg-info">{{ experience.interviewMode }}</span>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-auto">
+                <span class="detail-item">
+                  <i class="fas fa-list-ol me-1"></i>
+                  {{ experience.numberOfRounds }} Rounds
+                </span>
+              </div>
+              <div class="col-auto">
+                <span class="detail-item">
+                  <i class="fas fa-code me-1"></i>
+                  {{ experience.numberOfCodingProblems }} Coding Problems
+                </span>
+              </div>
+              <div class="col-auto">
+                <span class="detail-item">
+                  <i class="fas fa-calendar me-1"></i>
+                  {{ formatDate(experience.createdAt) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="applicant-info">
+              <div class="row g-3">
+                <div class="col-auto">
+                  <span class="detail-item">
+                    <i class="fas fa-user me-1"></i>
+                    {{ experience.name }}
+                  </span>
+                </div>
+                <div class="col-auto">
+                  <span class="detail-item">
+                    <i class="fas fa-graduation-cap me-1"></i>
+                    {{ experience.degree }} - {{ experience.branch }}
+                  </span>
+                </div>
+                <div class="col-auto">
+                  <span class="detail-item">
+                    <i class="fas fa-university me-1"></i>
+                    {{ experience.college }}
+                  </span>
+                </div>
+                <div class="col-auto">
+                  <span class="detail-item">
+                    <i class="fas fa-chart-line me-1"></i>
+                    CGPA: {{ experience.cgpa }}
+                  </span>
+                </div>
+                <div class="col-auto">
+                  <span class="detail-item">
+                    <i class="fas fa-briefcase me-1"></i>
+                    {{ experience.experience }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="experience.tags && experience.tags.length > 0" class="tags mt-3">
+              <span *ngFor="let tag of experience.tags" class="badge bg-light text-dark me-2">
+                {{ tag }}
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="actions-panel text-end">
+            <button
+              class="btn btn-outline-primary btn-sm upvote-btn"
+              (click)="onUpvote(experience._id!); $event.stopPropagation()"
+              [disabled]="!experience._id">
+              <i class="fas fa-thumbs-up me-1"></i>
+              Upvote
+              <span class="upvote-count ms-1">{{ experience.upvotes || 0 }}</span>
+            </button>
+          </div>
+
+          <div class="mt-3">
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-number">{{ experience.numberOfRounds }}</div>
+                <div class="stat-label">Rounds</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">{{ experience.numberOfCodingProblems }}</div>
+                <div class="stat-label">Coding</div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="experience.referrerEmail" class="mt-3">
+            <small class="text-muted">
+              <i class="fas fa-user-friends me-1"></i>
+              Referred
+            </small>
+          </div>
+
+          <!-- Selection Status -->
+          <div class="mt-3">
+            <div class="selection-status">
+              <span [class]="getOfferBadgeClass(experience.gotOffer)" class="status-badge-large">
+                <i [class]="experience.gotOffer ? 'fas fa-check-circle' : 'fas fa-times-circle'" class="me-1"></i>
+                {{ experience.gotOffer ? 'Selected' : 'Rejected' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experience Detail Modal -->
+  <app-experience-detail
+    [experience]="selectedExperience"
+    [isVisible]="showDetailModal"
+    (close)="hideExperienceDetail()">
+  </app-experience-detail>
+</div>

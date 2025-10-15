@@ -1,0 +1,299 @@
+<!-- Experience Detail Modal -->
+<div *ngIf="isVisible && experience" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="d-flex align-items-center">
+        <div class="company-logo me-3">
+          <div class="company-letter" [style.background-color]="'#007bff'">
+            {{ experience.company.charAt(0).toUpperCase() }}
+          </div>
+        </div>
+        <div>
+          <h3 class="modal-title mb-1">{{ experience.company }}</h3>
+          <h5 class="text-primary mb-0">{{ experience.role }}</h5>
+        </div>
+      </div>
+      <button type="button" class="btn-close" (click)="closeModal()"></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Preparation Journey Section (if available) -->
+      <div *ngIf="hasPreparationJourney()" class="info-section preparation-journey-highlight">
+        <h6 class="section-title">🚀 Interview Preparation Journey</h6>
+
+        <!-- Quick Stats -->
+        <div class="row g-3 mb-4" *ngIf="experience.preparationDuration || experience.practiceHours || experience.mocksGiven || experience.problemsSolved">
+          <div class="col-md-3" *ngIf="experience.preparationDuration">
+            <div class="prep-stat-card">
+              <div class="prep-stat-value">{{ experience.preparationDuration }}</div>
+              <div class="prep-stat-label">Preparation Duration</div>
+            </div>
+          </div>
+          <div class="col-md-3" *ngIf="experience.practiceHours">
+            <div class="prep-stat-card">
+              <div class="prep-stat-value">{{ experience.practiceHours }}h/day</div>
+              <div class="prep-stat-label">Daily Practice</div>
+            </div>
+          </div>
+          <div class="col-md-3" *ngIf="experience.mocksGiven">
+            <div class="prep-stat-card">
+              <div class="prep-stat-value">{{ experience.mocksGiven }}</div>
+              <div class="prep-stat-label">Mock Interviews</div>
+            </div>
+          </div>
+          <div class="col-md-3" *ngIf="experience.problemsSolved">
+            <div class="prep-stat-card">
+              <div class="prep-stat-value">{{ experience.problemsSolved }}</div>
+              <div class="prep-stat-label">Problems Solved</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confidence & Approach -->
+        <div class="row g-3 mb-3" *ngIf="experience.confidenceLevel || experience.preparationApproach">
+          <div class="col-md-6" *ngIf="experience.confidenceLevel">
+            <strong class="prep-subsection-title">🎯 Confidence Level:</strong>
+            <div class="prep-content">{{ experience.confidenceLevel }}</div>
+          </div>
+          <div class="col-md-6" *ngIf="experience.preparationApproach">
+            <strong class="prep-subsection-title">📚 Preparation Approach:</strong>
+            <div class="prep-content">{{ experience.preparationApproach }}</div>
+          </div>
+        </div>
+
+        <!-- Study Materials -->
+        <div *ngIf="experience.studyMaterials && experience.studyMaterials.length > 0" class="mb-3">
+          <strong class="prep-subsection-title">📚 Study Materials Used:</strong>
+          <div class="prep-tags-container">
+            <span *ngFor="let material of experience.studyMaterials" class="badge bg-primary me-2 mb-1">
+              {{ material }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Key Topics -->
+        <div *ngIf="experience.keyTopics && experience.keyTopics.length > 0" class="mb-3">
+          <strong class="prep-subsection-title">🎯 Key Topics Focused:</strong>
+          <div class="prep-tags-container">
+            <span *ngFor="let topic of experience.keyTopics" class="badge bg-success me-2 mb-1">
+              {{ topic }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Preparation Tips -->
+        <div *ngIf="experience.preparationTips" class="mb-3">
+          <strong class="prep-subsection-title">💡 Preparation Tips:</strong>
+          <div class="prep-content">{{ experience.preparationTips }}</div>
+        </div>
+
+        <!-- Challenges -->
+        <div *ngIf="experience.challenges" class="mb-3">
+          <strong class="prep-subsection-title">⚠️ Challenges Faced:</strong>
+          <div class="prep-content">{{ experience.challenges }}</div>
+        </div>
+
+        <!-- Time Management -->
+        <div *ngIf="experience.timeManagement" class="mb-3">
+          <strong class="prep-subsection-title">⏰ Time Management Strategy:</strong>
+          <div class="prep-content">{{ experience.timeManagement }}</div>
+        </div>
+
+        <!-- Most Helpful Resources -->
+        <div *ngIf="experience.resourcesHelpful" class="mb-3">
+          <strong class="prep-subsection-title">⭐ Most Helpful Resources:</strong>
+          <div class="prep-content">{{ experience.resourcesHelpful }}</div>
+        </div>
+
+        <!-- Would Change Approach -->
+        <div *ngIf="experience.wouldChangeApproach" class="mb-3">
+          <strong class="prep-subsection-title">🔄 What I Would Do Differently:</strong>
+          <div class="prep-content">{{ experience.wouldChangeApproach }}</div>
+        </div>
+
+        <!-- Advice -->
+        <div *ngIf="experience.advice" class="mb-3">
+          <strong class="prep-subsection-title">🎯 Advice for Future Candidates:</strong>
+          <div class="prep-content advice-content">{{ experience.advice }}</div>
+        </div>
+      </div>
+
+      <!-- Basic Info Section -->
+      <div class="info-section">
+        <h6 class="section-title">🏢 Interview Information</h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">📍 Location:</span>
+              <span class="info-value">{{ experience.location }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">📅 Date:</span>
+              <span class="info-value">{{ formatDate(experience.createdAt) }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">🔢 Rounds:</span>
+              <span class="info-value">{{ experience.numberOfRounds }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">💻 Coding Problems:</span>
+              <span class="info-value">{{ experience.numberOfCodingProblems }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">📊 Difficulty:</span>
+              <span [class]="getDifficultyBadgeClass(experience.difficulty)">
+                {{ experience.difficulty }}
+              </span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">🌐 Mode:</span>
+              <span class="badge bg-info">{{ experience.interviewMode }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">🎯 Result:</span>
+              <span [class]="getOfferBadgeClass(experience.gotOffer)">
+                {{ experience.gotOffer ? '✅ Got Offer' : '❌ No Offer' }}
+              </span>
+            </div>
+          </div>
+          <div class="col-md-6" *ngIf="experience.referrerEmail">
+            <div class="info-item">
+              <span class="info-label">👥 Referrer:</span>
+              <span class="info-value">{{ experience.referrerEmail }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Candidate Info Section -->
+      <div class="info-section">
+        <h6 class="section-title">👤 Candidate Information</h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">📝 Name:</span>
+              <span class="info-value">{{ experience.name }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">📧 Email:</span>
+              <span class="info-value">{{ experience.email }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">📱 Phone:</span>
+              <span class="info-value">{{ experience.phone }}</span>
+            </div>
+          </div>
+          <div class="col-md-6" *ngIf="experience.linkedinProfile">
+            <div class="info-item">
+              <span class="info-label">🔗 LinkedIn:</span>
+              <a [href]="experience.linkedinProfile" target="_blank" class="info-link">
+                View Profile
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Education Section -->
+      <div class="info-section">
+        <h6 class="section-title">🎓 Education Background</h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">🏫 College:</span>
+              <span class="info-value">{{ experience.college }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">🎓 Degree:</span>
+              <span class="info-value">{{ experience.degree }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">🔬 Branch:</span>
+              <span class="info-value">{{ experience.branch }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">📈 CGPA:</span>
+              <span class="info-value">{{ experience.cgpa }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
+              <span class="info-label">💼 Experience:</span>
+              <span class="info-value">{{ experience.experience }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference Questions Section -->
+      <div *ngIf="experience.codingQuestions && experience.codingQuestions.length > 0" class="info-section">
+        <h6 class="section-title">📚 Reference Questions</h6>
+        <div class="coding-questions-grid">
+          <div *ngFor="let question of experience.codingQuestions" class="question-detail-card">
+            <div class="question-content">
+              <p>{{ question.question }}</p>
+              <span *ngIf="question.topic" class="topic-tag">{{ question.topic }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags Section -->
+      <div *ngIf="experience.tags && experience.tags.length > 0" class="info-section">
+        <h6 class="section-title">🏷️ Tags</h6>
+        <div class="tags-container">
+          <span *ngFor="let tag of experience.tags" class="badge bg-light text-dark me-2 mb-2">
+            {{ tag }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Stats Section -->
+      <div class="info-section">
+        <h6 class="section-title">📊 Quick Stats</h6>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">{{ experience.numberOfRounds }}</div>
+            <div class="stat-label">Interview Rounds</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ experience.numberOfCodingProblems }}</div>
+            <div class="stat-label">Coding Problems</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ experience.upvotes || 0 }}</div>
+            <div class="stat-label">Upvotes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>

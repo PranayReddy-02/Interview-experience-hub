@@ -1,0 +1,715 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" routerLink="/">
+        <i class="fas fa-briefcase text-primary me-2"></i>
+        Interview Hub
+      </a>
+      <button class="btn btn-outline-secondary" routerLink="/">
+        <i class="fas fa-arrow-left me-2"></i>
+        Back to Home
+      </button>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <!-- Progress Bar -->
+        <div class="progress-section mb-4">
+          <h2 class="text-center mb-3">Share Your Interview Experience</h2>
+          <div class="progress mb-3" style="height: 8px;">
+            <div
+              class="progress-bar bg-primary"
+              role="progressbar"
+              [style.width.%]="(currentStep / totalSteps) * 100">
+            </div>
+          </div>
+          <div class="d-flex justify-content-between text-muted small">
+            <span [class.text-primary]="currentStep >= 1" [class.fw-bold]="currentStep >= 1">
+              Step 1: Interview Details
+            </span>
+            <span [class.text-primary]="currentStep >= 2" [class.fw-bold]="currentStep >= 2">
+              Step 2: Personal Details
+            </span>
+            <span [class.text-primary]="currentStep >= 3" [class.fw-bold]="currentStep >= 3">
+              Step 3: Reference Questions
+            </span>
+            <span [class.text-primary]="currentStep >= 4" [class.fw-bold]="currentStep >= 4">
+              Step 4: Preparation Journey
+            </span>
+          </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+              <i class="fas fa-clipboard-list me-2"></i>
+              {{ getStepTitle() }}
+            </h4>
+          </div>
+          <div class="card-body p-4">
+            <!-- Step 1: Interview Role Details -->
+            <div *ngIf="currentStep === 1">
+              <form #step1Form="ngForm">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="company" class="form-label required">Company you applied to</label>
+                    <input
+                      type="text"
+                      id="company"
+                      name="company"
+                      class="form-control"
+                      placeholder="e.g., Google, Amazon, Microsoft"
+                      [(ngModel)]="experienceData.company"
+                      required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="role" class="form-label required">Role for which you applied</label>
+                    <select
+                      id="role"
+                      name="role"
+                      class="form-select"
+                      [(ngModel)]="experienceData.role"
+                      (change)="onRoleChange()"
+                      required>
+                      <option value="">Select Role</option>
+                      <option *ngFor="let role of roleOptions" [value]="role">{{ role }}</option>
+                    </select>
+                    <div *ngIf="showCustomRole" class="mt-2">
+                      <input
+                        type="text"
+                        id="customRole"
+                        name="customRole"
+                        class="form-control"
+                        placeholder="Please specify your role..."
+                        [(ngModel)]="experienceData.customRole"
+                        required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="location" class="form-label required">Location of company</label>
+                    <input
+                      type="text"
+                      id="location"
+                      name="location"
+                      class="form-control"
+                      placeholder="e.g., Delhi, Seattle, Bangalore"
+                      [(ngModel)]="experienceData.location"
+                      required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="referrerEmail" class="form-label">Referrer Email (Optional)</label>
+                    <input
+                      type="email"
+                      id="referrerEmail"
+                      name="referrerEmail"
+                      class="form-control"
+                      placeholder="referrer@company.com"
+                      [(ngModel)]="experienceData.referrerEmail">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="numberOfRounds" class="form-label required">Number of interview rounds</label>
+                    <select
+                      id="numberOfRounds"
+                      name="numberOfRounds"
+                      class="form-select"
+                      [(ngModel)]="experienceData.numberOfRounds"
+                      required>
+                      <option [value]="1">1 Round</option>
+                      <option [value]="2">2 Rounds</option>
+                      <option [value]="3">3 Rounds</option>
+                      <option [value]="4">4 Rounds</option>
+                      <option [value]="5">5 Rounds</option>
+                      <option [value]="6">6+ Rounds</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="numberOfCodingProblems" class="form-label required">Number of coding problems</label>
+                    <select
+                      id="numberOfCodingProblems"
+                      name="numberOfCodingProblems"
+                      class="form-select"
+                      [(ngModel)]="experienceData.numberOfCodingProblems"
+                      required>
+                      <option [value]="0">0 Problems</option>
+                      <option [value]="1">1 Problem</option>
+                      <option [value]="2">2 Problems</option>
+                      <option [value]="3">3 Problems</option>
+                      <option [value]="4">4 Problems</option>
+                      <option [value]="5">5+ Problems</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="difficulty" class="form-label required">Difficulty level</label>
+                    <select
+                      id="difficulty"
+                      name="difficulty"
+                      class="form-select"
+                      [(ngModel)]="experienceData.difficulty"
+                      required>
+                      <option *ngFor="let difficulty of difficultyOptions" [value]="difficulty">
+                        {{ difficulty }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="interviewMode" class="form-label required">Interview mode</label>
+                    <select
+                      id="interviewMode"
+                      name="interviewMode"
+                      class="form-select"
+                      [(ngModel)]="experienceData.interviewMode"
+                      required>
+                      <option *ngFor="let mode of interviewModeOptions" [value]="mode">
+                        {{ mode }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label required">Did you get an offer?</label>
+                    <div class="mt-2">
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="gotOffer"
+                          id="offerYes"
+                          [value]="true"
+                          [(ngModel)]="experienceData.gotOffer">
+                        <label class="form-check-label" for="offerYes">Yes</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="gotOffer"
+                          id="offerNo"
+                          [value]="false"
+                          [(ngModel)]="experienceData.gotOffer">
+                        <label class="form-check-label" for="offerNo">No</label>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Step 2: Personal Details -->
+            <div *ngIf="currentStep === 2">
+              <form #step2Form="ngForm">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="name" class="form-label required">Your Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      class="form-control"
+                      placeholder="Full Name"
+                      [(ngModel)]="experienceData.name"
+                      required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="email" class="form-label required">Your Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      class="form-control"
+                      placeholder="your.email@domain.com"
+                      [(ngModel)]="experienceData.email"
+                      [class.is-invalid]="experienceData.email && !isEmailValid()"
+                      required>
+                    <div *ngIf="experienceData.email && !isEmailValid()" class="invalid-feedback">
+                      Please enter a valid email address.
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="phone" class="form-label required">Your Phone Number</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      class="form-control"
+                      placeholder="10-digit phone number"
+                      [(ngModel)]="experienceData.phone"
+                      [class.is-invalid]="experienceData.phone && !isPhoneValid()"
+                      required>
+                    <div *ngIf="experienceData.phone && !isPhoneValid()" class="invalid-feedback">
+                      Please enter a valid 10-digit phone number.
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="linkedinProfile" class="form-label">LinkedIn Profile URL (Optional)</label>
+                    <input
+                      type="url"
+                      id="linkedinProfile"
+                      name="linkedinProfile"
+                      class="form-control"
+                      placeholder="https://linkedin.com/in/yourprofile"
+                      [(ngModel)]="experienceData.linkedinProfile">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="degree" class="form-label required">Degree</label>
+                    <select
+                      id="degree"
+                      name="degree"
+                      class="form-select"
+                      [(ngModel)]="experienceData.degree"
+                      required>
+                      <option *ngFor="let degree of degreeOptions" [value]="degree">
+                        {{ degree }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="college" class="form-label required">Your College</label>
+                    <input
+                      type="text"
+                      id="college"
+                      name="college"
+                      class="form-control"
+                      placeholder="e.g., DTU, NSIT, IIT Delhi"
+                      [(ngModel)]="experienceData.college"
+                      required>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="branch" class="form-label required">Branch</label>
+                    <select
+                      id="branch"
+                      name="branch"
+                      class="form-select"
+                      [(ngModel)]="experienceData.branch"
+                      required>
+                      <option value="">Select Branch</option>
+                      <option *ngFor="let branch of branchOptions" [value]="branch">
+                        {{ branch }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="cgpa" class="form-label required">CGPA</label>
+                    <input
+                      type="number"
+                      id="cgpa"
+                      name="cgpa"
+                      class="form-control"
+                      placeholder="e.g., 8.5"
+                      min="0"
+                      max="10"
+                      step="0.01"
+                      [(ngModel)]="experienceData.cgpa"
+                      required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="experience" class="form-label required">Years of Experience</label>
+                    <select
+                      id="experience"
+                      name="experience"
+                      class="form-select"
+                      [(ngModel)]="experienceData.experience"
+                      required>
+                      <option *ngFor="let exp of experienceOptions" [value]="exp">
+                        {{ exp }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Step 3: Coding Questions Asked -->
+            <div *ngIf="currentStep === 3">
+              <form #step3Form="ngForm">
+                <div class="mb-4">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">Coding Questions Asked (Optional)</h6>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="addCodingQuestion()">
+                      ➕ Add Question
+                    </button>
+                  </div>
+
+                  <div *ngIf="!experienceData.codingQuestions || experienceData.codingQuestions.length === 0"
+                       class="text-center text-muted py-4">
+                    <p class="mb-0">No coding questions added yet.</p>
+                    <small>Click "Add Question" to add the coding questions that were asked in your interview.</small>
+                  </div>
+
+                  <div *ngFor="let question of experienceData.codingQuestions; let i = index"
+                       class="card mb-3 question-card">
+                    <div class="card-header d-flex justify-content-between align-items-center py-2">
+                      <span class="fw-bold">Question {{ i + 1 }}</span>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="removeCodingQuestion(i)">
+                        🗑️ Remove
+                      </button>
+                    </div>
+                    <div class="card-body">
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <label class="form-label">Question Description</label>
+                          <textarea
+                            class="form-control"
+                            rows="3"
+                            placeholder="Describe the coding problem that was asked..."
+                            [(ngModel)]="question.question"
+                            [name]="'question_' + i"
+                            (input)="updateCodingQuestions()"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label">Difficulty</label>
+                          <select
+                            class="form-select"
+                            [(ngModel)]="question.difficulty"
+                            [name]="'difficulty_' + i">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                          </select>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label">Topic/Category</label>
+                          <select
+                            class="form-select"
+                            [(ngModel)]="question.topic"
+                            [name]="'topic_' + i">
+                            <option value="">Select Topic</option>
+                            <option *ngFor="let topic of topicOptions" [value]="topic">{{ topic }}</option>
+                          </select>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label">Did you solve it?</label>
+                          <div class="mt-2">
+                            <div class="form-check form-check-inline">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                [name]="'solved_' + i"
+                                [id]="'solved_yes_' + i"
+                                [value]="true"
+                                [(ngModel)]="question.solved">
+                              <label class="form-check-label" [for]="'solved_yes_' + i">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                [name]="'solved_' + i"
+                                [id]="'solved_no_' + i"
+                                [value]="false"
+                                [(ngModel)]="question.solved">
+                              <label class="form-check-label" [for]="'solved_no_' + i">No</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Step 4: Preparation Journey -->
+            <div *ngIf="currentStep === 4">
+              <form #prepJourneyForm="ngForm">
+                <div class="preparation-journey-section">
+                  <div class="alert alert-primary mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Share your preparation journey to help future candidates!</strong>
+                    Your insights about study approaches, resources, and strategies will be valuable for others preparing for similar roles.
+                  </div>
+                  <div class="row g-4">
+                    <!-- Preparation Duration -->
+                    <div class="col-md-6">
+                      <label for="preparationDuration" class="form-label">
+                        <i class="fas fa-clock me-1"></i>
+                        How long did you prepare for this interview?
+                      </label>
+                      <select
+                        id="preparationDuration"
+                        name="preparationDuration"
+                        class="form-select"
+                        [(ngModel)]="experienceData.preparationDuration">
+                        <option value="">Select duration</option>
+                        <option *ngFor="let duration of preparationDurationOptions" [value]="duration">
+                          {{ duration }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Practice Hours -->
+                    <div class="col-md-3">
+                      <label for="practiceHours" class="form-label">
+                        <i class="fas fa-chart-line me-1"></i>
+                        Hours per day (average)
+                      </label>
+                      <input
+                        type="number"
+                        id="practiceHours"
+                        name="practiceHours"
+                        class="form-control"
+                        min="0"
+                        max="24"
+                        placeholder="2-4"
+                        [(ngModel)]="experienceData.practiceHours">
+                    </div>
+
+                    <!-- Mock Interviews -->
+                    <div class="col-md-3">
+                      <label for="mocksGiven" class="form-label">
+                        <i class="fas fa-microphone me-1"></i>
+                        Mock interviews taken
+                      </label>
+                      <input
+                        type="number"
+                        id="mocksGiven"
+                        name="mocksGiven"
+                        class="form-control"
+                        min="0"
+                        placeholder="0-10"
+                        [(ngModel)]="experienceData.mocksGiven">
+                    </div>
+
+                    <!-- Problems Solved -->
+                    <div class="col-md-6">
+                      <label for="problemsSolved" class="form-label">
+                        <i class="fas fa-code me-1"></i>
+                        Total coding problems solved (approximate)
+                      </label>
+                      <input
+                        type="number"
+                        id="problemsSolved"
+                        name="problemsSolved"
+                        class="form-control"
+                        min="0"
+                        placeholder="e.g., 100, 300, 500"
+                        [(ngModel)]="experienceData.problemsSolved">
+                    </div>
+
+                    <!-- Confidence Level -->
+                    <div class="col-md-6">
+                      <label for="confidenceLevel" class="form-label">
+                        <i class="fas fa-thumbs-up me-1"></i>
+                        How confident did you feel before the interview?
+                      </label>
+                      <select
+                        id="confidenceLevel"
+                        name="confidenceLevel"
+                        class="form-select"
+                        [(ngModel)]="experienceData.confidenceLevel">
+                        <option value="">Select confidence level</option>
+                        <option *ngFor="let level of confidenceLevelOptions" [value]="level">
+                          {{ level }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Preparation Approach -->
+                    <div class="col-md-6">
+                      <label for="preparationApproach" class="form-label">
+                        <i class="fas fa-users me-1"></i>
+                        What was your preparation approach?
+                      </label>
+                      <select
+                        id="preparationApproach"
+                        name="preparationApproach"
+                        class="form-select"
+                        [(ngModel)]="experienceData.preparationApproach">
+                        <option value="">Select approach</option>
+                        <option *ngFor="let approach of preparationApproachOptions" [value]="approach">
+                          {{ approach }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Time Management -->
+                    <div class="col-md-6">
+                      <label for="timeManagement" class="form-label">
+                        <i class="fas fa-stopwatch me-1"></i>
+                        How did you manage your preparation time?
+                      </label>
+                      <textarea
+                        id="timeManagement"
+                        name="timeManagement"
+                        class="form-control"
+                        rows="2"
+                        placeholder="e.g., 2 hours daily, weekends only, structured schedule..."
+                        [(ngModel)]="experienceData.timeManagement"></textarea>
+                    </div>
+
+                    <!-- Study Materials -->
+                    <div class="col-12">
+                      <label class="form-label">
+                        <i class="fas fa-book me-1"></i>
+                        Study materials you used (select all that apply)
+                      </label>
+                      <div class="row g-2">
+                        <div *ngFor="let material of studyMaterialOptions" class="col-md-4 col-lg-3">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              [id]="'material_' + material"
+                              [checked]="isStudyMaterialSelected(material)"
+                              (change)="toggleStudyMaterial(material)">
+                            <label class="form-check-label" [for]="'material_' + material">
+                              {{ material }}
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Key Topics -->
+                    <div class="col-12">
+                      <label class="form-label">
+                        <i class="fas fa-tags me-1"></i>
+                        Key topics you focused on (select all that apply)
+                      </label>
+                      <div class="row g-2">
+                        <div *ngFor="let topic of topicOptions" class="col-md-4 col-lg-3">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              [id]="'keytopic_' + topic"
+                              [checked]="isKeyTopicSelected(topic)"
+                              (change)="toggleKeyTopic(topic)">
+                            <label class="form-check-label" [for]="'keytopic_' + topic">
+                              {{ topic }}
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Preparation Tips -->
+                    <div class="col-12">
+                      <label for="preparationTips" class="form-label">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        Your top preparation tips (optional)
+                      </label>
+                      <textarea
+                        id="preparationTips"
+                        name="preparationTips"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Share the most effective study strategies, resources, or approaches that helped you..."
+                        [(ngModel)]="experienceData.preparationTips"></textarea>
+                    </div>
+
+                    <!-- Challenges -->
+                    <div class="col-12">
+                      <label for="challenges" class="form-label">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Biggest challenges you faced (optional)
+                      </label>
+                      <textarea
+                        id="challenges"
+                        name="challenges"
+                        class="form-control"
+                        rows="3"
+                        placeholder="What were the most difficult aspects of your preparation or the interview process?"
+                        [(ngModel)]="experienceData.challenges"></textarea>
+                    </div>
+
+                    <!-- Most Helpful Resources -->
+                    <div class="col-12">
+                      <label for="resourcesHelpful" class="form-label">
+                        <i class="fas fa-star me-1"></i>
+                        Which resources were most helpful? (optional)
+                      </label>
+                      <textarea
+                        id="resourcesHelpful"
+                        name="resourcesHelpful"
+                        class="form-control"
+                        rows="2"
+                        placeholder="Mention the specific resources, courses, or platforms that were most valuable..."
+                        [(ngModel)]="experienceData.resourcesHelpful"></textarea>
+                    </div>
+
+                    <!-- Would Change Approach -->
+                    <div class="col-12">
+                      <label for="wouldChangeApproach" class="form-label">
+                        <i class="fas fa-sync-alt me-1"></i>
+                        What would you do differently in your preparation? (optional)
+                      </label>
+                      <textarea
+                        id="wouldChangeApproach"
+                        name="wouldChangeApproach"
+                        class="form-control"
+                        rows="2"
+                        placeholder="Looking back, what changes would you make to your preparation strategy?"
+                        [(ngModel)]="experienceData.wouldChangeApproach"></textarea>
+                    </div>
+
+                    <!-- Advice -->
+                    <div class="col-12">
+                      <label for="advice" class="form-label">
+                        <i class="fas fa-comments me-1"></i>
+                        Advice for future candidates (optional)
+                      </label>
+                      <textarea
+                        id="advice"
+                        name="advice"
+                        class="form-control"
+                        rows="3"
+                        placeholder="What would you tell someone preparing for a similar role at this company?"
+                        [(ngModel)]="experienceData.advice"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+              <button
+                *ngIf="currentStep > 1"
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="previousStep()">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back
+              </button>
+              <div class="ms-auto">
+                <button
+                  *ngIf="currentStep < totalSteps"
+                  type="button"
+                  class="btn btn-primary"
+                  [disabled]="!validateCurrentStep()"
+                  (click)="nextStep()">
+                  Next
+                  <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+                <button
+                  *ngIf="currentStep === totalSteps"
+                  type="button"
+                  class="btn btn-success"
+                  [disabled]="!validateCurrentStep() || isSubmitting"
+                  (click)="submitExperience()">
+                  <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                  <i *ngIf="!isSubmitting" class="fas fa-check me-2"></i>
+                  {{ isSubmitting ? 'Submitting...' : 'Submit Experience' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Instructions -->
+        <div class="alert alert-info mt-4">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Note:</strong> All fields marked with <span class="text-danger">*</span> are required.
+          Your personal information will be kept private and only used for experience verification.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

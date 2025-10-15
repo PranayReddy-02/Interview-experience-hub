@@ -1,0 +1,194 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" routerLink="/">
+        💼 Interview Hub
+      </a>
+      <div class="d-flex gap-2 align-items-center">
+        <!-- Show user info and logout if logged in -->
+        <div *ngIf="currentUser" class="d-flex align-items-center gap-3">
+          <span class="text-muted small">
+            <i class="fas fa-user me-1"></i>
+            Welcome, {{ currentUser.name }}
+          </span>
+          <button class="btn btn-primary btn-sm" routerLink="/submit">
+            ➕ Submit Experience
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="logout()">
+            <i class="fas fa-sign-out-alt me-1"></i>
+            Logout
+          </button>
+        </div>
+
+        <!-- Show login if not logged in -->
+        <div *ngIf="!currentUser" class="d-flex align-items-center gap-2">
+          <button class="btn btn-primary btn-sm" routerLink="/submit">
+            ➕ Submit Experience
+          </button>
+          <button class="btn btn-outline-primary btn-sm" (click)="navigateToLogin()">
+            <i class="fas fa-sign-in-alt me-1"></i>
+            Login
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Popular Companies Section -->
+  <div class="container mt-4">
+    <h2 class="mb-4">Popular Companies</h2>
+    <div class="row">
+      <div class="col-12">
+        <div class="companies-scroll-container">
+          <div class="companies-scroll-wrapper">
+            <div
+              *ngFor="let company of popularCompanies"
+              class="company-card cursor-pointer"
+              (click)="onCompanyClick(company.name)">
+              <div class="company-logo" [style.background-color]="company.color">
+                <span class="company-letter">{{ company.logo }}</span>
+              </div>
+              <p class="company-name">{{ company.name }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search & Filter Section -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="card p-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small">Company</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="filters.company"
+                (change)="onCompanySelectChange()">
+                <option value="">All Companies</option>
+                <option *ngFor="let company of companyOptions" [value]="company">{{ company }}</option>
+              </select>
+              <div *ngIf="showCustomCompany" class="mt-2">
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  placeholder="Enter custom company name..."
+                  [(ngModel)]="customCompanyName"
+                  (input)="onCustomCompanyChange()">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Role</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="filters.role"
+                (change)="onFilterChange()">
+                <option value="">All Roles</option>
+                <option *ngFor="let role of popularRoles" [value]="role">{{ role }}</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">Location</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="filters.location"
+                (change)="onLocationSelectChange()">
+                <option value="">All Locations</option>
+                <option *ngFor="let location of locationOptions" [value]="location">{{ location }}</option>
+              </select>
+              <div *ngIf="showCustomLocation" class="mt-2">
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  placeholder="Enter custom location..."
+                  [(ngModel)]="customLocationName"
+                  (input)="onCustomLocationChange()">
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">Difficulty</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="filters.difficulty"
+                (change)="onFilterChange()">
+                <option value="">All</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+            <div class="col-md-1">
+              <label class="form-label small">Sort</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="filters.sortBy"
+                (change)="onSortChange()">
+                <option value="latest">Latest</option>
+                <option value="popular">Popular</option>
+              </select>
+            </div>
+            <div class="col-md-1">
+              <button class="btn btn-secondary btn-sm w-100" (click)="clearFilters()" title="Clear Filters">
+                ❌
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <p class="text-muted">
+          {{ experiences.length }} of {{ total }} Interview Experience
+        </p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Experience List -->
+    <div *ngIf="!loading">
+      <app-experience-list
+        [experiences]="experiences"
+        (upvote)="loadExperiences()">
+      </app-experience-list>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="row mt-4">
+      <div class="col-12">
+        <nav>
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+                Previous
+              </button>
+            </li>
+            <li
+              *ngFor="let page of [].constructor(totalPages); let i = index"
+              class="page-item"
+              [class.active]="currentPage === i + 1">
+              <button class="page-link" (click)="onPageChange(i + 1)">
+                {{ i + 1 }}
+              </button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">
+                Next
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

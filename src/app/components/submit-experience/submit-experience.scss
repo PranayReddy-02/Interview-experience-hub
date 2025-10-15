@@ -1,0 +1,360 @@
+.progress-section {
+  .progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+
+    .progress-bar {
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+  }
+}
+
+.card {
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+  .card-header {
+    border-radius: 12px 12px 0 0 !important;
+    border: none;
+
+    h4 {
+      font-weight: 600;
+    }
+  }
+
+  .card-body {
+    border-radius: 0 0 12px 12px;
+  }
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+
+  &.required::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+  }
+}
+
+.form-control, .form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.1);
+  }
+
+  &.is-invalid {
+    border-color: #dc3545;
+  }
+}
+
+.form-check-input {
+  margin-top: 0.25rem;
+
+  &:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+}
+
+.btn {
+  font-weight: 600;
+  padding: 12px 25px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+
+    &:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+  }
+
+  &.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+
+    &:hover {
+      background-color: #1e7e34;
+      border-color: #1e7e34;
+    }
+  }
+
+  &.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+
+    &:hover {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: white;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  color: #007bff !important;
+}
+
+.alert-info {
+  border: none;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.invalid-feedback {
+  font-size: 0.875rem;
+  margin-top: 5px;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+// Step indicator styling
+.text-primary.fw-bold {
+  color: #007bff !important;
+  font-weight: 700 !important;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+
+  .card-body {
+    padding: 20px !important;
+  }
+
+  .form-control, .form-select {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 15px;
+
+    .ms-auto {
+      margin-left: 0 !important;
+      text-align: center;
+    }
+  }
+
+  .navbar .container {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+}
+
+// Form animation
+.card-body > div {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+// Enhanced animations for preparation sections
+.prep-section {
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Coding questions styling
+.question-card {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #007bff;
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.1);
+  }
+
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    font-size: 0.9rem;
+  }
+
+  .card-body {
+    background-color: white;
+  }
+}
+
+.btn-outline-danger {
+  border-color: #dc3545;
+  color: #dc3545;
+
+  &:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+  }
+}
+
+.btn-outline-primary {
+  border-color: #007bff;
+  color: #007bff;
+
+  &:hover {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+  }
+}
+
+// Preparation Journey styling
+.preparation-journey-section {
+  .section-intro {
+    .alert-primary {
+      background-color: #e3f2fd;
+      border: 2px solid #2196f3;
+      color: #1565c0;
+      border-radius: 12px;
+    }
+  }
+
+  .prep-section {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .prep-section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #495057;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #dee2e6;
+      display: flex;
+      align-items: center;
+
+      i {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .form-check {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #f1f3f4;
+    }
+
+    .form-check-input:checked + .form-check-label {
+      color: #007bff;
+      font-weight: 600;
+    }
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  input[type="number"].form-control {
+    max-width: 150px;
+  }
+}
+
+// Step 4 specific enhancements
+.card-header h4 {
+  display: flex;
+  align-items: center;
+
+  i {
+    margin-right: 10px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+// Responsive enhancements for preparation journey
+@media (max-width: 768px) {
+  .preparation-journey-section {
+    .prep-section {
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .prep-section-title {
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+
+    .form-check {
+      padding: 6px 8px;
+      margin-bottom: 6px;
+    }
+  }
+
+  .col-md-4.col-lg-3 {
+    .form-check {
+      margin-bottom: 4px;
+    }
+  }
+}

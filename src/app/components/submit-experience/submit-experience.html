@@ -1,0 +1,434 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" routerLink="/">
+        <i class="fas fa-briefcase text-primary me-2"></i>
+        Interview Hub
+      </a>
+      <button class="btn btn-outline-secondary" routerLink="/">
+        <i class="fas fa-arrow-left me-2"></i>
+        Back to Home
+      </button>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <!-- Progress Bar -->
+        <div class="progress-section mb-4">
+          <h2 class="text-center mb-3">Share Your Interview Experience</h2>
+          <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar bg-primary" role="progressbar" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+          </div>
+          <div class="text-center">
+            <span class="text-primary fw-bold">Step {{currentStep}}: 
+              {{currentStep === 1 ? 'Basic Information' : 
+                currentStep === 2 ? 'Interview Details' :
+                currentStep === 3 ? 'Technical Questions' :
+                'Interview Preparation Journey'}}
+            </span>
+          </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+              <i class="fas fa-clipboard-list me-2"></i>
+              {{currentStep === 1 ? 'Basic Information' : 
+                currentStep === 2 ? 'Interview Details' :
+                currentStep === 3 ? 'Technical Questions' :
+                'Interview Preparation Journey'}}
+            </h4>
+          </div>
+          <div class="card-body p-4">
+            <form #experienceForm="ngForm">
+              <!-- Step 1: Basic Information -->
+              <div *ngIf="currentStep === 1">
+                <div class="alert alert-primary mb-4">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <strong>Let's start with the basics!</strong> Tell us about the role you interviewed for.
+                </div>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label for="company" class="form-label">Company Name</label>
+                    <input type="text" id="company" name="company" class="form-control" [(ngModel)]="experienceData.company" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="role" class="form-label">Role</label>
+                    <select id="role" name="role" class="form-select" [(ngModel)]="experienceData.role" (change)="onRoleChange()" required>
+                      <option value="">Select Role</option>
+                      <option *ngFor="let role of roleOptions" [value]="role">{{role}}</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6" *ngIf="experienceData.role === 'Others'">
+                    <label for="customRole" class="form-label">Custom Role</label>
+                    <input type="text" id="customRole" name="customRole" class="form-control" [(ngModel)]="experienceData.customRole" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" id="location" name="location" class="form-control" [(ngModel)]="experienceData.location" required>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="difficulty" class="form-label">Overall Interview Difficulty</label>
+                    <select id="difficulty" name="difficulty" class="form-select" [(ngModel)]="experienceData.difficulty" required>
+                      <option value="">Select Difficulty</option>
+                      <option *ngFor="let diff of difficultyOptions" [value]="diff">{{diff}}</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="gotOffer" class="form-label">Did you get an offer?</label>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="gotOffer" name="gotOffer" 
+                        [(ngModel)]="experienceData.gotOffer">
+                      <label class="form-check-label" for="gotOffer">
+                        Yes, I received an offer
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2: Interview Details -->
+              <div *ngIf="currentStep === 2">
+                <div class="alert alert-primary mb-4">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <strong>Tell us about yourself!</strong> This helps contextualize your experience.
+                </div>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control" [(ngModel)]="experienceData.name" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" [(ngModel)]="experienceData.email" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" [(ngModel)]="experienceData.phone" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="linkedinProfile" class="form-label">LinkedIn Profile (Optional)</label>
+                    <input type="url" id="linkedinProfile" name="linkedinProfile" class="form-control" [(ngModel)]="experienceData.linkedinProfile">
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="degree" class="form-label">Degree</label>
+                    <select id="degree" name="degree" class="form-select" [(ngModel)]="experienceData.degree" required>
+                      <option *ngFor="let degree of degreeOptions" [value]="degree">{{degree}}</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="branch" class="form-label">Branch/Specialization</label>
+                    <select id="branch" name="branch" class="form-select" [(ngModel)]="experienceData.branch" required>
+                      <option value="">Select Branch</option>
+                      <option *ngFor="let branch of branchOptions" [value]="branch">{{branch}}</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="college" class="form-label">College/University</label>
+                    <input type="text" id="college" name="college" class="form-control" [(ngModel)]="experienceData.college" required>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="cgpa" class="form-label">CGPA</label>
+                    <input type="number" id="cgpa" name="cgpa" class="form-control" [(ngModel)]="experienceData.cgpa" 
+                      min="0" max="10" step="0.01" required placeholder="Enter your CGPA (out of 10)">
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="experience" class="form-label">Experience Level</label>
+                    <select id="experience" name="experience" class="form-select" [(ngModel)]="experienceData.experience" required>
+                      <option *ngFor="let exp of experienceOptions" [value]="exp">{{exp}}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3: Technical Questions -->
+              <div *ngIf="currentStep === 3">
+                <div class="alert alert-primary mb-4">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <strong>Share the technical questions!</strong> Help others prepare better.
+                </div>
+                
+                <!-- Round Details -->
+                <div class="row g-4 mb-4">
+                  <div class="col-md-6">
+                    <label for="numberOfRounds" class="form-label">Number of Interview Rounds</label>
+                    <input type="number" id="numberOfRounds" name="numberOfRounds" class="form-control" 
+                      [(ngModel)]="experienceData.numberOfRounds" min="1" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="interviewMode" class="form-label">Interview Mode</label>
+                    <select id="interviewMode" name="interviewMode" class="form-select" 
+                      [(ngModel)]="experienceData.interviewMode">
+                      <option *ngFor="let mode of interviewModeOptions" [value]="mode">{{mode}}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Technical Round Details -->
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <h5 class="card-title mb-3">DSA/Coding Questions</h5>
+                    <div class="row g-4">
+                      <div class="col-12" *ngFor="let question of experienceData.codingQuestions; let i = index">
+                        <div class="card mb-3">
+                          <div class="card-body">
+                            <div class="row">
+                              <div class="col-md-12">
+                                <label [for]="'question_' + i" class="form-label">Question {{i + 1}}</label>
+                                <textarea [id]="'question_' + i" [name]="'question_' + i" class="form-control" 
+                                  [(ngModel)]="question.question" rows="3" 
+                                  placeholder="Describe the problem statement..."></textarea>
+                              </div>
+                              <div class="col-md-4 mt-2">
+                                <label [for]="'difficulty_' + i" class="form-label">Difficulty</label>
+                                <select [id]="'difficulty_' + i" [name]="'difficulty_' + i" class="form-select" 
+                                  [(ngModel)]="question.difficulty">
+                                  <option *ngFor="let diff of difficultyOptions" [value]="diff">{{diff}}</option>
+                                </select>
+                              </div>
+                              <div class="col-md-4 mt-2">
+                                <label [for]="'topic_' + i" class="form-label">Topic</label>
+                                <input type="text" [id]="'topic_' + i" [name]="'topic_' + i" class="form-control"
+                                  [(ngModel)]="question.topic" placeholder="e.g., Arrays, DP, Trees">
+                              </div>
+                              <div class="col-md-4 mt-2">
+                                <label [for]="'solved_' + i" class="form-label">Did you solve it?</label>
+                                <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" [id]="'solved_' + i" 
+                                    [(ngModel)]="question.solved" [name]="'solved_' + i">
+                                  <label class="form-check-label" [for]="'solved_' + i">Yes, I solved it</label>
+                                </div>
+                              </div>
+                              <div class="col-12 mt-2">
+                                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeCodingQuestion(i)">
+                                  <i class="fas fa-trash me-1"></i>Remove Question
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <button type="button" class="btn btn-outline-primary" (click)="addCodingQuestion()">
+                          <i class="fas fa-plus me-2"></i>Add Coding Question
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Core Skills Questions -->
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <h5 class="card-title mb-3">Core Skills & System Design</h5>
+                    <div class="row g-4">
+                      <div class="col-12">
+                        <label for="systemDesignTopics" class="form-label">System Design Topics Discussed</label>
+                        <textarea id="systemDesignTopics" name="systemDesignTopics" class="form-control" rows="3"
+                          [(ngModel)]="experienceData.systemDesignTopics" 
+                          placeholder="Describe any system design questions or topics discussed..."></textarea>
+                      </div>
+                      <div class="col-12">
+                        <label for="coreSkillsTopics" class="form-label">Core CS Fundamentals</label>
+                        <textarea id="coreSkillsTopics" name="coreSkillsTopics" class="form-control" rows="3"
+                          [(ngModel)]="experienceData.coreSkillsTopics" 
+                          placeholder="OS, DBMS, Networks concepts discussed..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Project Discussion -->
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title mb-3">Project Discussion</h5>
+                    <div class="row g-4">
+                      <div class="col-12">
+                        <label for="projectDiscussion" class="form-label">Projects & Work Experience Discussion</label>
+                        <textarea id="projectDiscussion" name="projectDiscussion" class="form-control" rows="3"
+                          [(ngModel)]="experienceData.projectDiscussion" 
+                          placeholder="Questions asked about your projects and work experience..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4: Interview Preparation Journey -->
+              <div *ngIf="currentStep === 4">
+                <div class="alert alert-primary mb-4">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <strong>Share your preparation journey!</strong> Your insights will help future candidates.
+                </div>
+                <div class="row g-4">
+                <!-- Preparation Duration -->
+                <div class="col-md-6">
+                  <label for="preparationDuration" class="form-label">
+                    <i class="fas fa-clock me-1"></i>
+                    Preparation Duration
+                  </label>
+                  <select id="preparationDuration" name="preparationDuration" class="form-select"
+                    [(ngModel)]="experienceData.preparationDuration">
+                    <option value="">Select duration</option>
+                    <option *ngFor="let duration of preparationDurationOptions" [value]="duration">
+                      {{ duration }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Practice Hours -->
+                <div class="col-md-3">
+                  <label for="practiceHours" class="form-label">
+                    <i class="fas fa-chart-line me-1"></i>
+                    Hours per day
+                  </label>
+                  <input type="number" id="practiceHours" name="practiceHours" class="form-control"
+                    min="0" max="24" placeholder="2-4" [(ngModel)]="experienceData.practiceHours">
+                </div>
+
+                <!-- Mock Interviews -->
+                <div class="col-md-3">
+                  <label for="mocksGiven" class="form-label">
+                    <i class="fas fa-microphone me-1"></i>
+                    Mock interviews
+                  </label>
+                  <input type="number" id="mocksGiven" name="mocksGiven" class="form-control"
+                    min="0" placeholder="0-10" [(ngModel)]="experienceData.mocksGiven">
+                </div>
+
+                <!-- Problems Solved -->
+                <div class="col-md-6">
+                  <label for="problemsSolved" class="form-label">
+                    <i class="fas fa-code me-1"></i>
+                    Problems Solved (approx)
+                  </label>
+                  <input type="number" id="problemsSolved" name="problemsSolved" class="form-control"
+                    min="0" placeholder="100, 300, 500" [(ngModel)]="experienceData.problemsSolved">
+                </div>
+
+                <!-- Confidence Level -->
+                <div class="col-md-6">
+                  <label for="confidenceLevel" class="form-label">
+                    <i class="fas fa-thumbs-up me-1"></i>
+                    Confidence Level
+                  </label>
+                  <select id="confidenceLevel" name="confidenceLevel" class="form-select"
+                    [(ngModel)]="experienceData.confidenceLevel">
+                    <option value="">Select level</option>
+                    <option *ngFor="let level of confidenceLevelOptions" [value]="level">
+                      {{ level }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Study Materials -->
+                <div class="col-12">
+                  <label class="form-label">
+                    <i class="fas fa-book me-1"></i>
+                    Study Materials Used
+                  </label>
+                  <div class="row g-2">
+                    <div *ngFor="let material of studyMaterialOptions" class="col-md-4 col-lg-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" [id]="'material_' + material"
+                          [checked]="isStudyMaterialSelected(material)" (change)="toggleStudyMaterial(material)">
+                        <label class="form-check-label" [for]="'material_' + material">
+                          {{ material }}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Key Topics -->
+                <div class="col-12">
+                  <label class="form-label">
+                    <i class="fas fa-tags me-1"></i>
+                    Key Topics Focused
+                  </label>
+                  <div class="row g-2">
+                    <div *ngFor="let topic of topicOptions" class="col-md-4 col-lg-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" [id]="'keytopic_' + topic"
+                          [checked]="isKeyTopicSelected(topic)" (change)="toggleKeyTopic(topic)">
+                        <label class="form-check-label" [for]="'keytopic_' + topic">
+                          {{ topic }}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Preparation Tips -->
+                <div class="col-12">
+                  <label for="preparationTips" class="form-label">
+                    <i class="fas fa-lightbulb me-1"></i>
+                    Preparation Tips
+                  </label>
+                  <textarea id="preparationTips" name="preparationTips" class="form-control" rows="3"
+                    placeholder="Share your most effective strategies..." [(ngModel)]="experienceData.preparationTips"></textarea>
+                </div>
+
+                <!-- Challenges -->
+                <div class="col-12">
+                  <label for="challenges" class="form-label">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Challenges Faced
+                  </label>
+                  <textarea id="challenges" name="challenges" class="form-control" rows="3"
+                    placeholder="What difficulties did you encounter?" [(ngModel)]="experienceData.challenges"></textarea>
+                </div>
+
+                <!-- Advice -->
+                <div class="col-12">
+                  <label for="advice" class="form-label">
+                    <i class="fas fa-comments me-1"></i>
+                    Advice for Future Candidates
+                  </label>
+                  <textarea id="advice" name="advice" class="form-control" rows="3"
+                    placeholder="What would you tell others preparing for this role?" [(ngModel)]="experienceData.advice"></textarea>
+                </div>
+              </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="text-center mt-4">
+                <button *ngIf="currentStep > 1" type="button" class="btn btn-secondary btn-lg me-2" (click)="previousStep()">
+                  <i class="fas fa-arrow-left me-2"></i>
+                  Previous
+                </button>
+                <button *ngIf="currentStep < totalSteps" type="button" class="btn btn-primary btn-lg" (click)="nextStep()">
+                  Next
+                  <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+                <button *ngIf="currentStep === totalSteps" type="button" class="btn btn-success btn-lg" [disabled]="isSubmitting" (click)="submitExperience()">
+                  <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                  <i *ngIf="!isSubmitting" class="fas fa-check me-2"></i>
+                  {{ isSubmitting ? 'Submitting...' : 'Submit Experience' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Form Instructions -->
+        <div class="alert alert-info mt-4">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Demo Mode:</strong> This shows the enhanced Page 4 - Interview Preparation Journey with all new fields.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
