@@ -39,20 +39,32 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
+    console.log('Attempting login with:', this.credentials.email);
+
     this.authService.login(this.credentials).subscribe({
       next: (result) => {
         this.isLoading = false;
+        console.log('Login result:', result);
         if (result.success) {
           console.log('Login successful:', result.user);
+          console.log('Token received:', result.token);
+          console.log('Navigating to:', this.returnUrl);
           this.router.navigateByUrl(this.returnUrl);
         } else {
           this.errorMessage = result.error || 'Login failed';
+          console.error('Login failed:', result.error);
         }
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = 'An error occurred during login';
-        console.error('Login error:', error);
+        console.error('Login error details:', error);
+        if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+        } else if (error.message) {
+          this.errorMessage = error.message;
+        } else {
+          this.errorMessage = 'An error occurred during login. Please check if the backend server is running.';
+        }
       }
     });
   }
@@ -61,5 +73,17 @@ export class LoginComponent {
   fillDemoCredentials(): void {
     this.credentials.email = 'user@example.com';
     this.credentials.password = 'password';
+  }
+
+  // Admin credentials helper
+  fillAdminCredentials(): void {
+    this.credentials.email = 'admin@company.com';
+    this.credentials.password = 'admin123';
+  }
+
+  // Test credentials helper
+  fillTestCredentials(): void {
+    this.credentials.email = 'test@gmail.com';
+    this.credentials.password = 'test123';
   }
 }

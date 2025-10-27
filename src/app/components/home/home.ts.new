@@ -1,0 +1,218 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { ExperienceService, Experience, FilterParams } from '../../services/experience';
+import { ExperienceListComponent } from '../experience-list/experience-list';
+import { AuthService, User } from '../../services/auth.service';
+
+@Component({
+  selector: 'app-home',
+  imports: [CommonModule, FormsModule, RouterModule, ExperienceListComponent],
+  templateUrl: './home.html',
+  styleUrl: './home.scss'
+})
+export class HomeComponent implements OnInit {
+  experiences: Experience[] = [];
+  currentUser: User | null = null;
+  loading = false;
+  currentPage = 1;
+  totalPages = 1;
+  total = 0;
+  showCustomCompany = false;
+  showCustomLocation = false;
+  customCompanyName = '';
+  customLocationName = '';
+
+  popularCompanies = [
+    { name: 'Amazon', logo: 'A', color: '#FF9900' },
+    { name: 'Google', logo: 'G', color: '#4285F4' },
+    { name: 'Microsoft', logo: 'M', color: '#00A1F1' },
+    { name: 'CRED', logo: 'C', color: '#0052CC' },
+    { name: 'Flipkart', logo: 'F', color: '#047BD6' },
+    { name: 'Zomato', logo: 'Z', color: '#E23744' },
+    { name: 'Swiggy', logo: 'S', color: '#FC8019' },
+    { name: 'PayTM', logo: 'P', color: '#00BAF2' }
+  ];
+
+  filters: FilterParams = {
+    company: '',
+    role: '',
+    location: '',
+    difficulty: '',
+    sortBy: 'latest'
+  };
+
+  popularRoles = [
+    'Software Engineer',
+    'Frontend Developer',
+    'Backend Developer',
+    'Full Stack Developer',
+    'Data Scientist',
+    'Machine Learning Engineer',
+    'DevOps Engineer',
+    'Product Manager',
+    'UI/UX Designer',
+    'Mobile Developer',
+    'Cloud Engineer',
+    'Security Engineer',
+    'QA Engineer',
+    'System Engineer',
+    'Data Engineer',
+    'Site Reliability Engineer'
+  ];
+
+  companyOptions = [
+    'Amazon',
+    'Google',
+    'Microsoft',
+    'Apple',
+    'Meta',
+    'Netflix',
+    'Tesla',
+    'Uber',
+    'Airbnb',
+    'Spotify',
+    'CRED',
+    'Flipkart',
+    'Zomato',
+    'Swiggy',
+    'PayTM',
+    'Razorpay',
+    'Ola',
+    'Others'
+  ];
+
+  locationOptions = [
+    'Bangalore',
+    'Mumbai',
+    'Delhi',
+    'Hyderabad',
+    'Chennai',
+    'Pune',
+    'Others'
+  ];
+
+  constructor(
+    private experienceService: ExperienceService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    this.currentUser = this.authService.getCurrentUser();
+    this.loadExperiences();
+  }
+
+  navigateToReview(experienceId?: string) {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: experienceId ? `/experiences/${experienceId}?openReviews=true` : '/experiences' }
+      });
+      return;
+    }
+    
+    if (experienceId) {
+      this.router.navigate(['/experiences', experienceId], {
+        queryParams: { openReviews: 'true' }
+      });
+    } else {
+      // If no experience ID is provided, show all experiences
+      this.router.navigate(['/experiences']);
+    }
+  }
+
+  loadExperiences() {
+    this.loading = true;
+    this.experienceService.getExperiences({ ...this.filters, page: this.currentPage })
+      .subscribe({
+        next: (response) => {
+          this.experiences = response.experiences;
+          this.totalPages = response.totalPages;
+          this.total = response.total;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading experiences:', error);
+          this.loading = false;
+        }
+      });
+  }
+
+  onUpvote(experienceId: string) {
+    const experience = this.experiences.find(exp => exp._id === experienceId);
+    if (experience) {
+      experience.upvotes = (experience.upvotes || 0) + 1;
+    }
+  }
+
+  onFilterChange() {
+    this.currentPage = 1;
+    this.loadExperiences();
+  }
+
+  onSortChange() {
+    this.currentPage = 1;
+    this.loadExperiences();
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.loadExperiences();
+  }
+
+  clearFilters() {
+    this.filters = {
+      company: '',
+      role: '',
+      location: '',
+      difficulty: '',
+      sortBy: 'latest'
+    };
+    this.currentPage = 1;
+    this.loadExperiences();
+  }
+
+  onCompanyClick(company: string) {
+    this.filters.company = company;
+    this.onFilterChange();
+  }
+
+  logout() {
+    this.authService.logout();
+  }
+
+  navigateToLogin() {
+    this.router.navigate(['/login']);
+  }
+
+  onCompanySelectChange() {
+    this.showCustomCompany = this.filters.company === 'Others';
+    if (!this.showCustomCompany) {
+      this.customCompanyName = '';
+      this.onFilterChange();
+    }
+  }
+
+  onCustomCompanyChange() {
+    if (this.customCompanyName.trim()) {
+      this.filters.company = this.customCompanyName.trim();
+      this.onFilterChange();
+    }
+  }
+
+  onLocationSelectChange() {
+    this.showCustomLocation = this.filters.location === 'Others';
+    if (!this.showCustomLocation) {
+      this.customLocationName = '';
+      this.onFilterChange();
+    }
+  }
+
+  onCustomLocationChange() {
+    if (this.customLocationName.trim()) {
+      this.filters.location = this.customLocationName.trim();
+      this.onFilterChange();
+    }
+  }
+}

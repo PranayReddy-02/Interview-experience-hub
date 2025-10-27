@@ -7,9 +7,9 @@
     </div>
   </div>
 
-  <div *ngFor="let experience of experiences" class="experience-card card mb-4 clickable-card" (click)="showExperienceDetail(experience)">
+  <div *ngFor="let experience of experiences" class="experience-card card mb-4 clickable-card" (click)="navigateToExperience(experience)">
     <div class="card-body">
-      <div class="row">
+      <div class="row align-items-start">
         <div class="col-md-8">
           <div class="d-flex align-items-start mb-3">
             <div class="company-info flex-grow-1">
@@ -20,6 +20,13 @@
                 <span class="text-muted">{{ experience.location }}</span>
               </div>
             </div>
+            <!-- <div class="upvote-section ms-3">
+              <button class="btn btn-outline-primary upvote-btn" 
+                      (click)="experience._id && onUpvote(experience._id); $event.stopPropagation()">
+                <i class="fas fa-thumbs-up"></i>
+                <span class="ms-1">{{ getUpvoteCount(experience) }}</span>
+              </button>
+            </div> -->
           </div>
 
           <div class="experience-details">
@@ -40,6 +47,12 @@
                 <span class="detail-label">Mode:</span>
                 <span class="badge bg-info">{{ experience.interviewMode }}</span>
               </div>
+              <div class="col-auto">
+                <button class="btn btn-outline-secondary btn-sm" 
+                        (click)="experience._id && navigateToExperienceReviews(experience._id); $event.stopPropagation()">
+                  <i class="fas fa-comments me-1"></i> Reviews
+                </button>
+              </div>
             </div>
 
             <div class="row g-3 mb-3">
@@ -59,6 +72,12 @@
                 <span class="detail-item">
                   <i class="fas fa-calendar me-1"></i>
                   {{ formatDate(experience.createdAt) }}
+                </span>
+              </div>
+              <div class="col-auto">
+                <span class="detail-item">
+                  <i class="fas fa-comments me-1"></i>
+                  {{ experience.reviewCount || 0 }} Reviews
                 </span>
               </div>
             </div>
@@ -110,13 +129,32 @@
         <div class="col-md-4">
           <div class="actions-panel text-end">
             <button
-              class="btn btn-outline-primary btn-sm upvote-btn"
+              class="btn btn-outline-primary btn-sm upvote-btn mb-2"
               (click)="onUpvote(experience._id!); $event.stopPropagation()"
               [disabled]="!experience._id">
               <i class="fas fa-thumbs-up me-1"></i>
               Upvote
               <span class="upvote-count ms-1">{{ experience.upvotes || 0 }}</span>
             </button>
+            <button
+              class="btn btn-outline-success btn-sm review-btn mb-2"
+              (click)="addReview(experience._id!); $event.stopPropagation()"
+              [disabled]="!experience._id">
+              <i class="fas fa-comments me-1"></i>
+              Add Review
+            </button>
+
+            <!-- Admin Delete Button -->
+            <div *ngIf="isAdmin()" class="admin-actions mt-2">
+              <button
+                class="btn btn-outline-danger btn-sm delete-btn w-100"
+                (click)="deleteExperience(experience, $event)"
+                [disabled]="!experience._id"
+                title="Delete Experience (Admin Only)">
+                <i class="fas fa-trash-alt me-1"></i>
+                Delete
+              </button>
+            </div>
           </div>
 
           <div class="mt-3">
@@ -146,17 +184,11 @@
                 <i [class]="experience.gotOffer ? 'fas fa-check-circle' : 'fas fa-times-circle'" class="me-1"></i>
                 {{ experience.gotOffer ? 'Selected' : 'Rejected' }}
               </span>
-            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Experience Detail Modal -->
-  <app-experience-detail
-    [experience]="selectedExperience"
-    [isVisible]="showDetailModal"
-    (close)="hideExperienceDetail()">
-  </app-experience-detail>
+
 </div>

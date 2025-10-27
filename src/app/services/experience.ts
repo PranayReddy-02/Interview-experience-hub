@@ -9,6 +9,20 @@ export interface CodingQuestion {
   solved: boolean;
 }
 
+export interface Review {
+  _id?: string;
+  experienceId: string;
+  userId: {
+    _id: string;
+    name: string;
+  };
+  content: string;
+  rating: number;
+  likes: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Experience {
   _id?: string;
   company: string;
@@ -55,6 +69,10 @@ export interface Experience {
   timeManagement?: string;
   resourcesHelpful?: string;
   wouldChangeApproach?: string;
+  // Review functionality
+  reviews?: Review[];
+  helpfulReviews?: number;
+  reviewCount?: number;
 }
 
 export interface ExperienceResponse {
@@ -82,6 +100,15 @@ export class ExperienceService {
 
   constructor(private http: HttpClient) { }
 
+  getExperience(id: string): Observable<Experience> {
+    return this.http.get<Experience>(`${this.apiUrl}/${id}`);
+  }
+
+  private getAuthHeaders(): { [key: string]: string } {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
   getExperiences(filters: FilterParams = {}): Observable<ExperienceResponse> {
     let params = new HttpParams();
 
@@ -100,7 +127,33 @@ export class ExperienceService {
   }
 
   createExperience(experience: Experience): Observable<Experience> {
-    return this.http.post<Experience>(this.apiUrl, experience);
+    return this.http.post<Experience>(this.apiUrl, experience, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  updateExperience(id: string, experience: Partial<Experience>): Observable<Experience> {
+    return this.http.put<Experience>(`${this.apiUrl}/${id}`, experience, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  deleteExperience(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  adminDeleteExperience(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}/admin-delete`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  adminEditExperience(id: string, experience: Partial<Experience>): Observable<Experience> {
+    return this.http.put<Experience>(`${this.apiUrl}/${id}/admin-edit`, experience, {
+      headers: this.getAuthHeaders()
+    });
   }
 
   upvoteExperience(id: string): Observable<{upvotes: number}> {
@@ -109,5 +162,48 @@ export class ExperienceService {
 
   getPopularCompanies(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/companies/popular`);
+  }
+
+  // Review Methods
+  getReviews(experienceId: string): Observable<Review[]> {
+    return this.http.get<Review[]>(`http://localhost:3000/api/reviews/${experienceId}`);
+  }
+
+  addReview(experienceId: string, content: string, rating: number): Observable<Review> {
+    return this.http.post<Review>(
+      `http://localhost:3000/api/reviews/${experienceId}`,
+      { content, rating: Number(rating) },
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  updateReview(reviewId: string, content: string, rating: number): Observable<Review> {
+    return this.http.put<Review>(
+      `http://localhost:3000/api/reviews/${reviewId}`,
+      { content, rating: Number(rating) },
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  deleteReview(reviewId: string): Observable<{ msg: string }> {
+    return this.http.delete<{ msg: string }>(
+      `http://localhost:3000/api/reviews/${reviewId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  adminDeleteReview(reviewId: string): Observable<{ msg: string }> {
+    return this.http.delete<{ msg: string }>(
+      `http://localhost:3000/api/reviews/${reviewId}/admin-delete`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  likeReview(reviewId: string): Observable<string[]> {
+    return this.http.post<string[]>(
+      `http://localhost:3000/api/reviews/${reviewId}/like`,
+      {},
+      { headers: this.getAuthHeaders() }
+    );
   }
 }

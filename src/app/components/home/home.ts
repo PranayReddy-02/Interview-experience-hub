@@ -14,6 +14,24 @@ import { AuthService, User } from '../../services/auth.service';
 })
 export class HomeComponent implements OnInit {
   experiences: Experience[] = [];
+  currentUser: User | null = null;
+  loading = false;
+  currentPage = 1;
+  totalPages = 1;
+  total = 0;
+  showCustomCompany = false;
+  showCustomLocation = false;
+  customCompanyName = '';
+  customLocationName = '';
+
+  filters: FilterParams = {
+    company: '',
+    role: '',
+    location: '',
+    difficulty: '',
+    sortBy: 'latest'
+  };
+
   popularCompanies = [
     { name: 'Amazon', logo: 'A', color: '#FF9900' },
     { name: 'Google', logo: 'G', color: '#4285F4' },
@@ -164,24 +182,6 @@ export class HomeComponent implements OnInit {
     'Others'
   ];
 
-  filters: FilterParams = {
-    company: '',
-    role: '',
-    location: '',
-    difficulty: '',
-    sortBy: 'latest'
-  };
-
-  totalPages = 0;
-  currentPage = 1;
-  total = 0;
-  loading = false;
-  currentUser: User | null = null;
-  showCustomCompany = false;
-  customCompanyName = '';
-  showCustomLocation = false;
-  customLocationName = '';
-
   constructor(
     private experienceService: ExperienceService,
     private authService: AuthService,
@@ -192,8 +192,34 @@ export class HomeComponent implements OnInit {
     this.loadExperiences();
     // Subscribe to auth state changes
     this.authService.currentUser$.subscribe(user => {
+      console.log('Home - Auth state changed:', user);
       this.currentUser = user;
     });
+
+    // Also check current user on init
+    this.currentUser = this.authService.getCurrentUser();
+    console.log('Home - Initial current user:', this.currentUser);
+
+    // Listen for admin updates to refresh experiences
+    this.setupAdminUpdateListener();
+  }
+
+  navigateToReview(experienceId?: string) {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: experienceId ? `/experiences/${experienceId}?openReviews=true` : '/experiences' }
+      });
+      return;
+    }
+    
+    if (experienceId) {
+      this.router.navigate(['/experiences', experienceId], {
+        queryParams: { openReviews: 'true' }
+      });
+    } else {
+      // If no experience ID is provided, show all experiences
+      this.router.navigate(['/experiences']);
+    }
   }
 
   loadExperiences() {
@@ -290,5 +316,29 @@ export class HomeComponent implements OnInit {
 
   getEffectiveLocationName(): string {
     return this.showCustomLocation ? this.customLocationName : (this.filters.location || '');
+  }
+
+  onExperienceDeleted(experienceId: string) {
+    console.log('Experience deleted from home page:', experienceId);
+    // Update the total count and refresh if needed
+    this.total = Math.max(0, this.total - 1);
+
+    // If we deleted the last experience on the current page and there are more pages,
+    // go to the previous page
+    if (this.experiences.length === 1 && this.currentPage > 1) {
+      this.currentPage = this.currentPage - 1;
+    }
+
+    // Refresh the experiences list
+    this.loadExperiences();
+  }
+
+  setupAdminUpdateListener(): void {
+    // Listen for admin updates from dashboard
+    window.addEventListener('adminExperienceUpdated', (event: any) => {
+      console.log('Home page received admin update event:', event.detail);
+      // Refresh the experiences list when admin makes changes
+      this.loadExperiences();
+    });
   }
 }

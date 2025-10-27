@@ -21,6 +21,8 @@ const sampleExperiences = [
     branch: 'Computer Science',
     cgpa: 9.2,
     experience: 'Fresher',
+    userId: new mongoose.Types.ObjectId(),
+    userEmail: 'john.doe@email.com',
     upvotes: 15,
     tags: ['Fresher'],
     codingQuestions: [
@@ -61,6 +63,8 @@ const sampleExperiences = [
     branch: 'Computer Engineering',
     cgpa: 8.7,
     experience: '0-3 Years',
+    userId: new mongoose.Types.ObjectId(),
+    userEmail: 'jane.smith@email.com',
     upvotes: 8,
     tags: ['Experienced'],
     codingQuestions: [
@@ -95,6 +99,8 @@ const sampleExperiences = [
     branch: 'Information Technology',
     cgpa: 8.9,
     experience: 'Fresher',
+    userId: new mongoose.Types.ObjectId(),
+    userEmail: 'alex.johnson@email.com',
     upvotes: 12,
     tags: ['Fresher', 'Internship'],
     codingQuestions: [
@@ -129,6 +135,8 @@ const sampleExperiences = [
     branch: 'Computer Science',
     cgpa: 9.5,
     experience: '0-3 Years',
+    userId: new mongoose.Types.ObjectId(),
+    userEmail: 'sarah.wilson@email.com',
     upvotes: 20,
     tags: ['Experienced'],
     codingQuestions: [
@@ -175,6 +183,8 @@ const sampleExperiences = [
     branch: 'Computer Science',
     cgpa: 8.8,
     experience: '3+ Years',
+    userId: new mongoose.Types.ObjectId(),
+    userEmail: 'mike.chen@email.com',
     upvotes: 5,
     tags: ['Senior'],
     codingQuestions: [

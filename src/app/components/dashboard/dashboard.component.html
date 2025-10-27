@@ -1,0 +1,446 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" routerLink="/">
+        <i class="fas fa-briefcase text-primary me-2"></i>
+        Interview Hub
+      </a>
+      <div class="navbar-nav ms-auto">
+        <a class="btn btn-outline-primary me-2" routerLink="/">
+          <i class="fas fa-home me-1"></i>
+          Back to Home
+        </a>
+        <button class="btn btn-outline-danger" (click)="logout()">
+          <i class="fas fa-sign-out-alt me-1"></i>
+          Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <!-- User Info Section -->
+    <div class="row mb-4" *ngIf="currentUser">
+      <div class="col-12">
+        <div class="card user-profile-card">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <!-- User Avatar and Quick Stats -->
+              <div class="col-md-3 text-center">
+                <div class="user-avatar mb-3">
+                  <span class="avatar-text">{{ currentUser.name.charAt(0).toUpperCase() }}</span>
+                </div>
+                <h4 class="user-name mb-2">{{ currentUser.name }}</h4>
+                <p class="user-role text-muted mb-3">{{ currentUser.role || 'Community Member' }}</p>
+                <div class="quick-stats">
+                  <div class="stat-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="stat-value">{{ userExperiences.length }}</span>
+                    <span class="stat-label">Experiences Shared</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- User Details -->
+              <div class="col-md-9">
+                <div class="user-details">
+                  <div class="section-title">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Profile Information
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <div class="info-item">
+                        <span class="info-label"><i class="fas fa-envelope me-2"></i>Email</span>
+                        <span class="info-value">{{ currentUser.email }}</span>
+                      </div>
+                      <div class="info-item" *ngIf="currentUser.phone">
+                        <span class="info-label"><i class="fas fa-phone me-2"></i>Phone</span>
+                        <span class="info-value">{{ currentUser.phone }}</span>
+                      </div>
+                      <div class="info-item" *ngIf="currentUser.experience">
+                        <span class="info-label"><i class="fas fa-briefcase me-2"></i>Experience</span>
+                        <span class="info-value">{{ currentUser.experience }}</span>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="info-item" *ngIf="currentUser.degree">
+                        <span class="info-label"><i class="fas fa-graduation-cap me-2"></i>Degree</span>
+                        <span class="info-value">{{ currentUser.degree }}</span>
+                      </div>
+                      <div class="info-item" *ngIf="currentUser.branch">
+                        <span class="info-label"><i class="fas fa-code-branch me-2"></i>Branch</span>
+                        <span class="info-value">{{ currentUser.branch }}</span>
+                      </div>
+                      <div class="info-item" *ngIf="currentUser.college">
+                        <span class="info-label"><i class="fas fa-university me-2"></i>College</span>
+                        <span class="info-value">{{ currentUser.college }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+      <i class="fas fa-check-circle me-2"></i>
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+
+    <!-- Admin Section (only for admin users) -->
+    <div *ngIf="isAdmin()" class="row mb-4">
+      <div class="col-12">
+        <div class="card border-danger">
+          <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-crown me-2"></i>
+              Admin Panel - All Experiences
+            </h5>
+            <span class="badge bg-light text-dark">{{ allExperiences.length }} Total</span>
+          </div>
+          <div class="card-body">
+            <!-- Loading State -->
+            <div *ngIf="adminLoading" class="text-center py-4">
+              <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading all experiences...</p>
+            </div>
+
+            <!-- Admin Experiences List -->
+            <div *ngIf="!adminLoading && allExperiences.length > 0" class="row">
+              <div class="col-md-6 col-lg-4 mb-3" *ngFor="let experience of allExperiences">
+                <div class="card h-100 border-warning">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h6 class="card-title mb-0">{{ experience.company }}</h6>
+                      <span class="badge bg-warning text-dark">{{ experience.role }}</span>
+                    </div>
+
+                    <p class="card-text small text-muted mb-2">
+                      <i class="fas fa-user me-1"></i>
+                      {{ experience.name }}
+                    </p>
+
+                    <p class="card-text small text-muted mb-2">
+                      <i class="fas fa-map-marker-alt me-1"></i>
+                      {{ experience.location }}
+                    </p>
+
+                    <div class="mb-2">
+                      <span [class]="getDifficultyBadgeClass(experience.difficulty)">
+                        {{ experience.difficulty }}
+                      </span>
+                      <span class="badge bg-info ms-1">
+                        {{ getOfferStatusText(experience.gotOffer) }}
+                      </span>
+                    </div>
+
+                    <p class="card-text small mb-2">
+                      <i class="fas fa-calendar me-1"></i>
+                      {{ formatDate(experience.createdAt) }}
+                    </p>
+
+                    <p class="card-text small mb-2">
+                      <i class="fas fa-thumbs-up me-1"></i>
+                      {{ experience.upvotes || 0 }} upvotes
+                    </p>
+                  </div>
+                  <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100">
+                      <button class="btn btn-outline-warning btn-sm" (click)="openAdminEditModal(experience)">
+                        <i class="fas fa-edit me-1"></i>
+                        Edit
+                      </button>
+                      <button class="btn btn-outline-danger btn-sm" (click)="adminDeleteExperience(experience._id || '')">
+                        <i class="fas fa-trash me-1"></i>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State for Admin -->
+            <div *ngIf="!adminLoading && allExperiences.length === 0" class="text-center py-4">
+              <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+              <h5>No experiences found</h5>
+              <p class="text-muted">No interview experiences have been submitted yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Experiences Section -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-list me-2"></i>
+              {{ isAdmin() ? 'My Interview Experiences' : 'My Interview Experiences' }}
+            </h5>
+            <a class="btn btn-primary btn-sm" routerLink="/submit">
+              <i class="fas fa-plus me-1"></i>
+              Add New Experience
+            </a>
+          </div>
+          <div class="card-body">
+            <!-- Loading State -->
+            <div *ngIf="isLoading" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading your experiences...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!isLoading && userExperiences.length === 0" class="text-center py-4">
+              <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+              <h5>No experiences yet</h5>
+              <p class="text-muted">Share your interview experiences to help others!</p>
+              <a class="btn btn-primary" routerLink="/submit">
+                <i class="fas fa-plus me-2"></i>
+                Submit Your First Experience
+              </a>
+            </div>
+
+            <!-- Experiences List -->
+            <div *ngIf="!isLoading && userExperiences.length > 0" class="row">
+              <div class="col-md-6 col-lg-4 mb-3" *ngFor="let experience of userExperiences">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h6 class="card-title mb-0">{{ experience.company }}</h6>
+                      <span class="badge bg-primary">{{ experience.role }}</span>
+                    </div>
+
+                    <p class="card-text small text-muted mb-2">
+                      <i class="fas fa-map-marker-alt me-1"></i>
+                      {{ experience.location }}
+                    </p>
+
+                    <div class="mb-2">
+                      <span [class]="getDifficultyBadgeClass(experience.difficulty)">
+                        {{ experience.difficulty }}
+                      </span>
+                      <span class="badge bg-info ms-1">
+                        {{ getOfferStatusText(experience.gotOffer) }}
+                      </span>
+                    </div>
+
+                    <p class="card-text small mb-2">
+                      <i class="fas fa-calendar me-1"></i>
+                      {{ formatDate(experience.createdAt) }}
+                    </p>
+
+                    <p class="card-text small mb-2">
+                      <i class="fas fa-thumbs-up me-1"></i>
+                      {{ experience.upvotes || 0 }} upvotes
+                    </p>
+
+                    <p class="card-text small mb-3">
+                      <i class="fas fa-user me-1"></i>
+                      {{ experience.experience }}
+                    </p>
+                  </div>
+                  <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100">
+                      <button class="btn btn-outline-primary btn-sm" (click)="openEditModal(experience)">
+                        <i class="fas fa-edit me-1"></i>
+                        Edit
+                      </button>
+                      <button class="btn btn-outline-danger btn-sm" (click)="deleteExperience(experience._id || '')">
+                        <i class="fas fa-trash me-1"></i>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Experience Modal -->
+<div *ngIf="showEditModal" class="modal-backdrop show" (click)="closeEditModal()"></div>
+<div *ngIf="showEditModal" class="modal show d-block" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-edit me-2"></i>
+          Edit Experience
+        </h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+      <div class="modal-body" *ngIf="editingExperience">
+        <form>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Company</label>
+              <input type="text" class="form-control" [(ngModel)]="editingExperience.company" name="company">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Role</label>
+              <input type="text" class="form-control" [(ngModel)]="editingExperience.role" name="role">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" [(ngModel)]="editingExperience.location" name="location">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Difficulty</label>
+              <select class="form-select" [(ngModel)]="editingExperience.difficulty" name="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Experience Level</label>
+              <select class="form-select" [(ngModel)]="editingExperience.experience" name="experience">
+                <option value="Fresher">Fresher</option>
+                <option value="0-3 Years">0-3 Years</option>
+                <option value="3+ Years">3+ Years</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="editingExperience.gotOffer" name="gotOffer">
+                <label class="form-check-label">
+                  Got Offer
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">
+          <i class="fas fa-times me-1"></i>
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveExperience()">
+          <i class="fas fa-save me-1"></i>
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Edit Experience Modal -->
+<div *ngIf="showAdminEditModal" class="modal-backdrop show" (click)="closeAdminEditModal()"></div>
+<div *ngIf="showAdminEditModal" class="modal show d-block" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-crown me-2"></i>
+          Admin Edit Experience
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAdminEditModal()"></button>
+      </div>
+      <div class="modal-body" *ngIf="adminEditingExperience">
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Admin Mode:</strong> You are editing this experience as an administrator.
+        </div>
+        <form>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Company</label>
+              <input type="text" class="form-control" [(ngModel)]="adminEditingExperience.company" name="adminCompany">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Role</label>
+              <input type="text" class="form-control" [(ngModel)]="adminEditingExperience.role" name="adminRole">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" [(ngModel)]="adminEditingExperience.location" name="adminLocation">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Difficulty</label>
+              <select class="form-select" [(ngModel)]="adminEditingExperience.difficulty" name="adminDifficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Experience Level</label>
+              <select class="form-select" [(ngModel)]="adminEditingExperience.experience" name="adminExperience">
+                <option value="Fresher">Fresher</option>
+                <option value="0-3 Years">0-3 Years</option>
+                <option value="3+ Years">3+ Years</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="adminEditingExperience.gotOffer" name="adminGotOffer">
+                <label class="form-check-label">
+                  Got Offer
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Submitted By</label>
+              <input type="text" class="form-control" [value]="adminEditingExperience.name" readonly>
+              <small class="text-muted">Original submitter (read-only)</small>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Upvotes</label>
+              <input type="number" class="form-control" [(ngModel)]="adminEditingExperience.upvotes" name="adminUpvotes">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAdminEditModal()">
+          <i class="fas fa-times me-1"></i>
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="saveAdminExperience()">
+          <i class="fas fa-save me-1"></i>
+          Save as Admin
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

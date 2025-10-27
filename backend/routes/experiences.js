@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Experience = require('../models/Experience');
+const User = require('../models/User');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { authenticateToken, requireOwnershipOrAdmin, requireAdmin } = require('../middleware/auth');
 const {
   validateExperience,
   validateExperienceQuery,
   validateObjectId,
+  validateAdminExperienceEdit,
   handleValidationErrors
 } = require('../middleware/validation');
 
@@ -293,7 +296,7 @@ router.get('/:id', validateObjectId, handleValidationErrors, asyncHandler(async 
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', validateExperience, handleValidationErrors, asyncHandler(async (req, res) => {
+router.post('/', authenticateToken, validateExperience, handleValidationErrors, asyncHandler(async (req, res) => {
   // Auto-generate tags based on experience level
   const tags = [];
   if (req.body.experience === 'Fresher') {
@@ -311,6 +314,8 @@ router.post('/', validateExperience, handleValidationErrors, asyncHandler(async 
 
   const experience = new Experience({
     ...req.body,
+    userId: req.user._id,
+    userEmail: req.user.email,
     tags
   });
 
@@ -427,6 +432,300 @@ router.get('/companies/popular', asyncHandler(async (req, res) => {
   ]);
 
   res.json(popularCompanies);
+}));
+
+/**
+ * @swagger
+ * /api/experiences/{id}:
+ *   put:
+ *     summary: Update an interview experience
+ *     description: Update an existing interview experience (owner or admin only)
+ *     tags: [Experiences]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The experience ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ExperienceInput'
+ *     responses:
+ *       200:
+ *         description: Experience updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Experience'
+ *       403:
+ *         description: Access denied
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Experience not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       400:
+ *         description: Validation error or invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.put('/:id', authenticateToken, validateObjectId, validateExperience, handleValidationErrors, asyncHandler(async (req, res) => {
+  const experience = await Experience.findById(req.params.id);
+
+  if (!experience) {
+    return res.status(404).json({ message: 'Experience not found' });
+  }
+
+  // Check ownership or admin
+  if (experience.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
+  // Update fields
+  Object.keys(req.body).forEach(key => {
+    if (req.body[key] !== undefined) {
+      experience[key] = req.body[key];
+    }
+  });
+
+  // Update tags if experience level changed
+  const tags = [];
+  if (experience.experience === 'Fresher') {
+    tags.push('Fresher');
+  } else if (experience.experience === '0-3 Years') {
+    tags.push('Experienced');
+  } else {
+    tags.push('Senior');
+  }
+
+  if (experience.role.toLowerCase().includes('intern')) {
+    tags.push('Internship');
+  }
+
+  experience.tags = tags;
+  experience.updatedAt = new Date();
+
+  const updatedExperience = await experience.save();
+  res.json(updatedExperience);
+}));
+
+/**
+ * @swagger
+ * /api/experiences/{id}:
+ *   delete:
+ *     summary: Delete an interview experience
+ *     description: Soft delete an interview experience (owner or admin only)
+ *     tags: [Experiences]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The experience ID
+ *     responses:
+ *       200:
+ *         description: Experience deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Experience deleted successfully"
+ *       403:
+ *         description: Access denied
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Experience not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.delete('/:id', authenticateToken, validateObjectId, handleValidationErrors, asyncHandler(async (req, res) => {
+  const experience = await Experience.findById(req.params.id);
+
+  if (!experience) {
+    return res.status(404).json({ message: 'Experience not found' });
+  }
+
+  // Check ownership or admin
+  if (experience.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
+  // Soft delete
+  experience.isActive = false;
+  await experience.save();
+
+  res.json({ message: 'Experience deleted successfully' });
+}));
+
+/**
+ * @swagger
+ * /api/experiences/{id}/admin-delete:
+ *   delete:
+ *     summary: Hard delete an interview experience (admin only)
+ *     description: Permanently delete an interview experience (admin only)
+ *     tags: [Experiences]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The experience ID
+ *     responses:
+ *       200:
+ *         description: Experience permanently deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Experience permanently deleted"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Experience not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.delete('/:id/admin-delete', authenticateToken, requireAdmin, validateObjectId, handleValidationErrors, asyncHandler(async (req, res) => {
+  const experience = await Experience.findById(req.params.id);
+
+  if (!experience) {
+    return res.status(404).json({ message: 'Experience not found' });
+  }
+
+  // Hard delete (admin only)
+  await Experience.findByIdAndDelete(req.params.id);
+  res.json({ message: 'Experience permanently deleted' });
+}));
+
+// Admin delete (alias for regular delete - allows admin or owner)
+router.delete('/:id/admin', authenticateToken, validateObjectId, handleValidationErrors, asyncHandler(async (req, res) => {
+  const experience = await Experience.findById(req.params.id);
+
+  if (!experience) {
+    return res.status(404).json({ message: 'Experience not found' });
+  }
+
+  // Check ownership or admin
+  if (experience.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
+  // Hard delete
+  await Experience.findByIdAndDelete(req.params.id);
+  res.json({ message: 'Experience permanently deleted' });
+}));
+
+/**
+ * @swagger
+ * /api/experiences/{id}/admin-edit:
+ *   put:
+ *     summary: Admin edit any experience
+ *     description: Allow admins to edit any experience regardless of ownership
+ *     tags: [Experiences]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The experience ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ExperienceInput'
+ *     responses:
+ *       200:
+ *         description: Experience updated successfully by admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Experience'
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Experience not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.put('/:id/admin-edit', authenticateToken, requireAdmin, validateObjectId, validateAdminExperienceEdit, handleValidationErrors, asyncHandler(async (req, res) => {
+  const experience = await Experience.findById(req.params.id);
+
+  if (!experience) {
+    return res.status(404).json({ message: 'Experience not found' });
+  }
+
+  // Admin can edit any experience
+  Object.keys(req.body).forEach(key => {
+    if (req.body[key] !== undefined) {
+      experience[key] = req.body[key];
+    }
+  });
+
+  // Update tags if experience level changed
+  const tags = [];
+  if (experience.experience === 'Fresher') {
+    tags.push('Fresher');
+  } else if (experience.experience === '0-3 Years') {
+    tags.push('Experienced');
+  } else {
+    tags.push('Senior');
+  }
+
+  if (experience.role.toLowerCase().includes('intern')) {
+    tags.push('Internship');
+  }
+
+  experience.tags = tags;
+  experience.updatedAt = new Date();
+
+  const updatedExperience = await experience.save();
+  res.json(updatedExperience);
 }));
 
 module.exports = router;

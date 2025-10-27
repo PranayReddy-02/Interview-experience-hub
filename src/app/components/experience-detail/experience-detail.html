@@ -1,6 +1,16 @@
-<!-- Experience Detail Modal -->
-<div *ngIf="isVisible && experience" class="modal-overlay" (click)="closeModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+<!-- Experience Detail Container -->
+<div *ngIf="experience" [ngClass]="{'modal-overlay': isVisible}" (click)="isVisible ? closeModal() : null">
+  <div [ngClass]="{'modal-content': isVisible, 'container mt-4': !isVisible}" (click)="$event.stopPropagation()">
+
+    <!-- Floating Close Button -->
+    <button *ngIf="isVisible"
+      type="button"
+      class="floating-close-btn"
+      (click)="closeModal()"
+      title="Close"
+      (mouseenter)="$event.stopPropagation()">
+      <i class="fas fa-times"></i>
+    </button>
     <div class="modal-header">
       <div class="d-flex align-items-center">
         <div class="company-logo me-3">
@@ -10,10 +20,18 @@
         </div>
         <div>
           <h3 class="modal-title mb-1">{{ experience.company }}</h3>
-          <h5 class="text-primary mb-0">{{ experience.role }}</h5>
+          <h5 class="mb-0">{{ experience.role }}</h5>
         </div>
       </div>
       <button type="button" class="btn-close" (click)="closeModal()"></button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav nav-tabs mb-3">
+      <button class="nav-link active">
+        <i class="fas fa-info-circle me-1"></i>
+        Details
+      </button>
     </div>
 
     <div class="modal-body">
@@ -62,7 +80,7 @@
         </div>
 
         <!-- Study Materials -->
-        <div *ngIf="experience.studyMaterials && experience.studyMaterials.length > 0" class="mb-3">
+        <div *ngIf="hasItems(experience.studyMaterials)" class="mb-3">
           <strong class="prep-subsection-title">📚 Study Materials Used:</strong>
           <div class="prep-tags-container">
             <span *ngFor="let material of experience.studyMaterials" class="badge bg-primary me-2 mb-1">
@@ -72,7 +90,7 @@
         </div>
 
         <!-- Key Topics -->
-        <div *ngIf="experience.keyTopics && experience.keyTopics.length > 0" class="mb-3">
+        <div *ngIf="hasItems(experience.keyTopics)" class="mb-3">
           <strong class="prep-subsection-title">🎯 Key Topics Focused:</strong>
           <div class="prep-tags-container">
             <span *ngFor="let topic of experience.keyTopics" class="badge bg-success me-2 mb-1">
@@ -124,19 +142,25 @@
         <div class="row g-3">
           <div class="col-md-6">
             <div class="info-item">
+              <span class="info-label">💼 Role:</span>
+              <span class="info-value">{{ experience.role }}</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info-item">
               <span class="info-label">📍 Location:</span>
               <span class="info-value">{{ experience.location }}</span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="info-item">
-              <span class="info-label">📅 Date:</span>
+              <span class="info-label">� Date:</span>
               <span class="info-value">{{ formatDate(experience.createdAt) }}</span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="info-item">
-              <span class="info-label">🔢 Rounds:</span>
+              <span class="info-label">�🔢 Rounds:</span>
               <span class="info-value">{{ experience.numberOfRounds }}</span>
             </div>
           </div>
@@ -288,11 +312,134 @@
           </div>
         </div>
       </div>
-    </div>
+
+      </div>
+
+      <!-- Reviews Section -->
+      <div id="reviewsSection" class="info-section mb-4 px-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h6 class="section-title mb-0">
+            <i class="fas fa-comments me-2"></i>
+            Reviews and Comments
+          </h6>
+          <button class="btn btn-primary" (click)="toggleReviewForm()" *ngIf="currentUser">
+            <i class="fas fa-plus me-2"></i>Add Review
+          </button>
+        </div>
+
+        <!-- Add Review Form -->
+        <div class="add-review-form card mb-4" *ngIf="currentUser && showReviewForm">
+          <div class="card-body">
+            <h5 class="mb-3">Write Your Review</h5>
+            <form (ngSubmit)="submitReview()">
+              <div *ngIf="submitError" class="alert alert-danger mb-3">
+                {{ submitError }}
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="mb-2">Rating</label>
+                <div class="rating-input">
+                  <i *ngFor="let star of [1,2,3,4,5]"
+                     class="fas fa-star"
+                     [class.active]="star <= (hoverRating || newReview.rating)"
+                     (click)="setRating(star)"
+                     (mouseenter)="onStarHover(star)"
+                     (mouseleave)="onStarLeave()"></i>
+                </div>
+                <div class="rating-display mt-2" *ngIf="newReview.rating > 0">
+                  <small class="text-muted">You rated: {{ newReview.rating }} star{{ newReview.rating > 1 ? 's' : '' }}</small>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="reviewContent" class="mb-2">Your Review</label>
+                <textarea
+                  id="reviewContent"
+                  class="form-control"
+                  rows="4"
+                  [(ngModel)]="newReview.content"
+                  name="content"
+                  placeholder="Share your thoughts about this interview experience..."
+                  required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary"
+                      [disabled]="!newReview.rating || !newReview.content">
+                {{ isEditing ? 'Update Review' : 'Submit Review' }}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Login to Review Message -->
+        <div *ngIf="!currentUser" class="alert alert-info mb-4">
+          <i class="fas fa-info-circle me-2"></i>
+          Please <a href="/login" class="alert-link">login</a> to add your review.
+        </div>
+
+        <!-- Reviews List -->
+        <div class="reviews-list ms-3">
+          <div *ngFor="let review of reviews" class="review-card mb-3">
+            <div class="review-header">
+              <div class="review-user">
+                <div class="user-avatar">
+                  {{ review.userId.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="user-info">
+                  <h6 class="mb-0">{{ review.userId.name }}</h6>
+                  <small class="text-muted">
+                    {{ review.createdAt | date:'MMM d, y' }}
+                  </small>
+                </div>
+              </div>
+              <div class="review-rating" *ngIf="review.rating > 0">
+                <i *ngFor="let star of [1,2,3,4,5]"
+                   class="fas fa-star"
+                   [class.active]="star <= review.rating"></i>
+              </div>
+            </div>
+            <div class="review-content mt-2">
+              {{ review.content }}
+            </div>
+            <div class="review-actions mt-2">
+              <button class="btn btn-sm btn-light"
+                      (click)="likeReview(review)"
+                      [class.active]="isReviewLikedByCurrentUser(review)">
+                <i class="fas fa-thumbs-up me-1"></i>
+                {{ review.likes.length }}
+              </button>
+              <div class="action-buttons" *ngIf="isReviewOwner(review)">
+                <button class="btn btn-sm btn-outline-primary me-2"
+                        (click)="editReview(review)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                        (click)="review._id && deleteReview(review._id)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+              <div class="admin-action-buttons" *ngIf="isAdmin() && !isReviewOwner(review)">
+                <button class="btn btn-sm btn-outline-danger"
+                        (click)="review._id && adminDeleteReview(review._id)"
+                        title="Admin Delete">
+                  <i class="fas fa-trash"></i>
+                  Admin Delete
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="reviews.length === 0" class="text-center py-4">
+            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+            <h5>No reviews yet</h5>
+            <p class="text-muted">Be the first to share your thoughts!</p>
+          </div>
+        </div>
+      </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="closeModal()">
-        Close
+      <button type="button" class="btn btn-secondary btn-lg" (click)="closeModal()">
+        <i class="fas fa-times me-2"></i>Close Experience
       </button>
     </div>
   </div>

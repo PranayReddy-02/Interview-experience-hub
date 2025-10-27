@@ -295,16 +295,34 @@ export class SubmitExperienceComponent {
     // Ensure numberOfCodingProblems matches the actual number of coding questions
     submissionData.numberOfCodingProblems = submissionData.codingQuestions?.length || 0;
 
+    // Clean up the data - remove undefined values and ensure proper types
+    Object.keys(submissionData).forEach(key => {
+      const value = (submissionData as any)[key];
+      if (value === undefined || value === null || value === '') {
+        delete (submissionData as any)[key];
+      }
+    });
+
+    console.log('Submitting data:', submissionData);
+
     this.experienceService.createExperience(submissionData).subscribe({
       next: (response) => {
         console.log('Experience submitted successfully:', response);
         this.isSubmitting = false;
+        alert('Experience submitted successfully!');
         this.router.navigate(['/']);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error submitting experience:', error);
         this.isSubmitting = false;
-        alert('Error submitting experience. Please try again.');
+        if (error.error && error.error.message) {
+          alert(`Error: ${error.error.message}`);
+        } else if (error.error && error.error.errors) {
+          const validationErrors = error.error.errors.map((err: any) => err.msg).join(', ');
+          alert(`Validation Error: ${validationErrors}`);
+        } else {
+          alert(`Error submitting experience: ${error.message || 'Please try again.'}`);
+        }
       }
     });
   }

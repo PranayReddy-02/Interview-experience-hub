@@ -1,16 +1,20 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const connectDB = require('./config/db');
+const connectDB = require('./config/database');
 const experienceRoutes = require('./routes/experiences');
+const userRoutes = require('./routes/users');
+const reviewRoutes = require('./routes/reviews');
 const { errorHandler } = require('./middleware/errorHandler');
-const setupSwagger = require('./swagger');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
 const packageJson = require('./package.json'); // For version info
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Connect to database
 connectDB();
@@ -23,6 +27,8 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:4200', // Restrict to your frontend URL
   credentials: true,
 }));
+
+
 
 // Rate Limiting to prevent abuse
 const limiter = rateLimit({
@@ -48,9 +54,15 @@ app.get('/', (req, res) => {
   });
 });
 app.use('/api/experiences', experienceRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/users', userRoutes);
 
 // Setup Swagger API Documentation
-setupSwagger(app);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Interview Experience Hub API'
+}));
 
 // Handle 404 - Not Found
 app.use((req, res, next) => {

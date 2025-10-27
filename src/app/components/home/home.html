@@ -8,10 +8,10 @@
       <div class="d-flex gap-2 align-items-center">
         <!-- Show user info and logout if logged in -->
         <div *ngIf="currentUser" class="d-flex align-items-center gap-3">
-          <span class="text-muted small">
+          <button class="btn btn-outline-info btn-sm" routerLink="/dashboard">
             <i class="fas fa-user me-1"></i>
             Welcome, {{ currentUser.name }}
-          </span>
+          </button>
           <button class="btn btn-primary btn-sm" routerLink="/submit">
             ➕ Submit Experience
           </button>
@@ -159,7 +159,8 @@
     <div *ngIf="!loading">
       <app-experience-list
         [experiences]="experiences"
-        (upvote)="loadExperiences()">
+        (upvote)="loadExperiences()"
+        (experienceDeleted)="onExperienceDeleted($event)">
       </app-experience-list>
     </div>
 

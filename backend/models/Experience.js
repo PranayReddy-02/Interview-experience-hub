@@ -51,10 +51,15 @@ const ExperienceSchema = new mongoose.Schema({
   resourcesHelpful: { type: String, trim: true },
   wouldChangeApproach: { type: String, trim: true },
 
-  // Metadata
+  // User ownership and metadata
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userEmail: { type: String, required: true }, // Store email for quick access
   upvotes: { type: Number, default: 0 },
+  upvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Track who upvoted
   tags: [{ type: String }],
-  createdAt: { type: Date, default: Date.now }
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Experience', ExperienceSchema);
