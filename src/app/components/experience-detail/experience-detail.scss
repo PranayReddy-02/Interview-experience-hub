@@ -329,21 +329,44 @@
     font-size: 1.5rem;
     cursor: pointer;
 
-    .fa-star {
-      color: #ddd;
-      transition: color 0s;
+    i.rating-star.fas.fa-star {
+      color: #ddd !important;
       margin-right: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 2px;
+      transition: color 0.2s ease;
+      cursor: pointer;
 
-      &.active {
-        color: #FFA500;
-        border-color: #FFA500;
+      &.selected {
+        color: #ff6b35 !important;
+      }
+
+      &.hovered {
+        color: #ff6b35 !important;
       }
 
       &:hover {
-        color: #FFA500;
-        border-color: #FFA500;
+        color: #ff6b35 !important;
+      }
+    }
+  }
+
+  .rating-text {
+    font-weight: bold;
+
+    &.rating-1 { color: #dc3545; } // red
+    &.rating-2 { color: #fd7e14; } // orange
+    &.rating-3 { color: #ffc107; } // yellow
+    &.rating-4 { color: #20c997; } // teal
+    &.rating-5 { color: #28a745; } // green
+  }
+
+  .rating-stars {
+    .fa-star {
+      color: #ddd;
+      font-size: 0.8rem;
+      margin-right: 0.1rem;
+
+      &.active {
+        color: #ff6b35 !important;
       }
     }
   }
@@ -382,17 +405,14 @@
         .fa-star {
           color: #ddd;
           font-size: 0.9rem;
-          border: 1px solid #ccc;
-          border-radius: 2px;
+          transition: color 0.2s ease;
 
           &.active {
-            color: #FFA500 !important;
-            border-color: #FFA500;
+            color: #ff6b35 !important;
           }
 
           &:hover {
-            color: #FFA500;
-            border-color: #FFA500;
+            color: #ff6b35;
           }
         }
       }
@@ -683,137 +703,6 @@
   }
 }
 
-// Reviews Section Styles
-.reviews-section {
-  .rating-input {
-    font-size: 1.5rem;
-    cursor: pointer;
-
-    .fa-star {
-      color: #ddd;
-      transition: color 0s;
-      margin-right: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 2px;
-
-      &.active {
-        color: #FFA500;
-        border-color: #FFA500;
-      }
-
-      &:hover {
-        color: #FFA500;
-        border-color: #FFA500;
-      }
-    }
-  }
-
-  .review-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border: 1px solid #e9ecef;
-
-    .review-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-
-      .review-user {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-
-        .user-avatar {
-          width: 40px;
-          height: 40px;
-          background: linear-gradient(135deg, #007bff, #0056b3);
-          color: white;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-        }
-
-        .user-info {
-          h6 {
-            color: #000000;
-          }
-        }
-      }
-
-      .review-rating {
-        .fa-star {
-          color: #ddd;
-          font-size: 0.9rem;
-          border: 1px solid #ccc;
-          border-radius: 2px;
-          
-
-          &.active {
-            color: #FFA500 !important;
-            border-color: #FFA500;
-          }
-
-          &:hover {
-            color: #FFA500;
-            border-color: #FFA500;
-          }
-        }
-      }
-    }
-
-    .review-content {
-      color: #333333;
-      line-height: 1.6;
-    }
-
-    .review-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid #e9ecef;
-
-      .btn-light {
-        color: #000000;
-        transition: all 0.2s;
-
-        &.active {
-          color: #007bff;
-          background-color: #e7f1ff;
-        }
-
-        &:hover {
-          background-color: #e9ecef;
-        }
-      }
-
-      .action-buttons {
-        .btn {
-          padding: 0.25rem 0.5rem;
-        }
-      }
-
-      .admin-action-buttons {
-        .btn {
-          padding: 0.25rem 0.5rem;
-          font-size: 0.75rem;
-          border: 1px solid #dc3545;
-          color: #dc3545;
-
-          &:hover {
-            background-color: #dc3545;
-            color: white;
-          }
-        }
-      }
-    }
-  }
-}
 
 /* Smooth scrolling for modal content only */
 .modal-content {

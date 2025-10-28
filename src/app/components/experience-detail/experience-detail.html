@@ -339,15 +339,16 @@
               <div class="form-group mb-3">
                 <label class="mb-2">Rating</label>
                 <div class="rating-input">
-                  <i *ngFor="let star of [1,2,3,4,5]"
-                     class="fas fa-star"
-                     [class.active]="star <= (hoverRating || newReview.rating)"
-                     (click)="setRating(star)"
-                     (mouseenter)="onStarHover(star)"
+                  <i *ngFor="let num of [1,2,3,4,5]"
+                     class="fas fa-star rating-star"
+                     [style.color]="hoverRating > 0 ? (num <= hoverRating ? '#ff6b35' : '#ddd') : (num <= newReview.rating ? '#ff6b35' : '#ddd')"
+                     [style.font-size]="'24px'"
+                     (click)="setRating(num)"
+                     (mouseenter)="onStarHover(num)"
                      (mouseleave)="onStarLeave()"></i>
                 </div>
                 <div class="rating-display mt-2" *ngIf="newReview.rating > 0">
-                  <small class="text-muted">You rated: {{ newReview.rating }} star{{ newReview.rating > 1 ? 's' : '' }}</small>
+                  <small class="text-muted">You rated: {{ newReview.rating }}</small>
                 </div>
               </div>
 
@@ -392,9 +393,7 @@
                 </div>
               </div>
               <div class="review-rating" *ngIf="review.rating > 0">
-                <i *ngFor="let star of [1,2,3,4,5]"
-                   class="fas fa-star"
-                   [class.active]="star <= review.rating"></i>
+                <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star" [style.color]="star <= review.rating ? '#ff6b35' : '#ddd'"></i>
               </div>
             </div>
             <div class="review-content mt-2">

@@ -279,10 +279,13 @@ export class ExperienceDetailComponent implements OnInit {
 
   setRating(rating: number) {
     this.newReview.rating = rating;
+    this.hoverRating = 0; // Reset hover when clicking
   }
 
   onStarHover(star: number) {
-    this.hoverRating = star;
+    if (!this.isEditing) { // Only allow hover on new reviews, not when editing
+      this.hoverRating = star;
+    }
   }
 
   onStarLeave() {
